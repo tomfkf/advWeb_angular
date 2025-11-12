@@ -11,9 +11,12 @@
             <div class="field">
                 <label>{{ key }}</label>
                 <input type="text" [formControlName]="key">
+                {{form.get(key)?.errors | json}}
             </div>
         }
 
+        {{form.value | json}}
+        {{form.status | json}}
         <!-- @if (searchBusForm.controls['searchKey'].hasError('required')) {
             <div class="ui error message">
                 Please enter {{searchType}}
