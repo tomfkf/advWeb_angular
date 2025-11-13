@@ -9,8 +9,8 @@
                     aria-label="{{ 'MOBILE_POST.PLACEHOLDER.MOBILE_CODE' | translate }}"
                     matInput
                     formControlName="mobileCode"
-                    [matAutocomplete]="auto">
-                <mat-autocomplete #auto="matAutocomplete">
+                    [matAutocomplete]="autoMobileCode">
+                <mat-autocomplete #autoMobileCode="matAutocomplete">
                     @for (option of filteredOptions['mobileCode'] | async; track option) {
                         <mat-option [value]="option">{{option}}</mat-option>
                     }
@@ -20,23 +20,95 @@
         </div>
         <div class="example-container">
             <mat-form-field class="example-full-width">
+                <mat-label>{{ 'MOBILE_POST.FIELDS.LOCATION_EN' | translate }}</mat-label>
+                <input type="text"
+                    placeholder="{{ 'MOBILE_POST.PLACEHOLDER.LOCATION_EN' | translate }}"
+                    aria-label="{{ 'MOBILE_POST.PLACEHOLDER.LOCATION_EN' | translate }}"
+                    matInput
+                    formControlName="locationEN"
+                    [matAutocomplete]="autoLocationEN">
+                <mat-autocomplete #autoLocationEN="matAutocomplete">
+                    @for (option of filteredOptions['locationEN'] | async; track option) {
+                        <mat-option [value]="option">{{option}}</mat-option>
+                    }
+                </mat-autocomplete>
+            </mat-form-field>
+            <mat-form-field class="example-full-width">
                 <mat-label>{{ 'MOBILE_POST.FIELDS.LOCATION_TC' | translate }}</mat-label>
                 <input type="text"
                     placeholder="{{ 'MOBILE_POST.PLACEHOLDER.LOCATION_TC' | translate }}"
                     aria-label="{{ 'MOBILE_POST.PLACEHOLDER.LOCATION_TC' | translate }}"
                     matInput
                     formControlName="locationTC"
-                    [matAutocomplete]="auto">
-                <mat-autocomplete #auto="matAutocomplete">
+                    [matAutocomplete]="autoLocationTC">
+                <mat-autocomplete #autoLocationTC="matAutocomplete">
                     @for (option of filteredOptions['locationTC'] | async; track option) {
                         <mat-option [value]="option">{{option}}</mat-option>
                     }
                 </mat-autocomplete>
             </mat-form-field>
-            
+            <mat-form-field class="example-full-width">
+                <mat-label>{{ 'MOBILE_POST.FIELDS.LOCATION_SC' | translate }}</mat-label>
+                <input type="text"
+                    placeholder="{{ 'MOBILE_POST.PLACEHOLDER.LOCATION_SC' | translate }}"
+                    aria-label="{{ 'MOBILE_POST.PLACEHOLDER.LOCATION_SC' | translate }}"
+                    matInput
+                    formControlName="locationSC"
+                    [matAutocomplete]="autoLocationSC">
+                <mat-autocomplete #autoLocationSC="matAutocomplete">
+                    @for (option of filteredOptions['locationSC'] | async; track option) {
+                        <mat-option [value]="option">{{option}}</mat-option>
+                    }
+                </mat-autocomplete>
+            </mat-form-field>
         </div>
 
+        <div class="example-container">
+            <mat-form-field class="example-full-width">
+                <mat-label>{{ 'MOBILE_POST.FIELDS.ADDRESS_EN' | translate }}</mat-label>
+                <input type="text"
+                    placeholder="{{ 'MOBILE_POST.PLACEHOLDER.ADDRESS_EN' | translate }}"
+                    aria-label="{{ 'MOBILE_POST.PLACEHOLDER.ADDRESS_EN' | translate }}"
+                    matInput
+                    formControlName="addressEN"
+                    [matAutocomplete]="autoAddressEN">
+                <mat-autocomplete #autoAddressEN="matAutocomplete">
+                    @for (option of filteredOptions['addressEN'] | async; track option) {
+                        <mat-option [value]="option">{{option}}</mat-option>
+                    }
+                </mat-autocomplete>
+            </mat-form-field>
+            <mat-form-field class="example-full-width">
+                <mat-label>{{ 'MOBILE_POST.FIELDS.ADDRESS_TC' | translate }}</mat-label>
+                <input type="text"
+                    placeholder="{{ 'MOBILE_POST.PLACEHOLDER.ADDRESS_TC' | translate }}"
+                    aria-label="{{ 'MOBILE_POST.PLACEHOLDER.ADDRESS_TC' | translate }}"
+                    matInput
+                    formControlName="addressTC"
+                    [matAutocomplete]="autoAddressTC">
+                <mat-autocomplete #autoAddressTC="matAutocomplete">
+                    @for (option of filteredOptions['addressTC'] | async; track option) {
+                        <mat-option [value]="option">{{option}}</mat-option>
+                    }
+                </mat-autocomplete>
+            </mat-form-field>
+            <mat-form-field class="example-full-width">
+                <mat-label>{{ 'MOBILE_POST.FIELDS.ADDRESS_SC' | translate }}</mat-label>
+                <input type="text"
+                    placeholder="{{ 'MOBILE_POST.PLACEHOLDER.ADDRESS_SC' | translate }}"
+                    aria-label="{{ 'MOBILE_POST.PLACEHOLDER.ADDRESS_SC' | translate }}"
+                    matInput
+                    formControlName="addressSC"
+                    [matAutocomplete]="autoAddressSC">
+                <mat-autocomplete #autoAddressSC="matAutocomplete">
+                    @for (option of filteredOptions['addressSC'] | async; track option) {
+                        <mat-option [value]="option">{{option}}</mat-option>
+                    }
+                </mat-autocomplete>
+            </mat-form-field>
+        </div>
 
+        
         {{form.value | json}}
         {{form.status | json}}
     </form>

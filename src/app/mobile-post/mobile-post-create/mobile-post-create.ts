@@ -88,10 +88,10 @@ export class MobilePostCreate {
 
   private _filter(value: string, field: keyof MobilePost): Set<string> {
     const filterValue = value.toLowerCase();
-    console.log('Filtering', field, 'with value:', filterValue);
     return new Set(this.initMobilePostOption
       .map(post => String(post[field] ?? ''))
-      .filter(option => option.toLowerCase().includes(filterValue)));
+      .filter(option => option.toLowerCase().includes(filterValue)))
+      ;
 
   }
 
