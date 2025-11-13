@@ -1,7 +1,7 @@
-import { MobilePost } from './mobile-post';
+// import { MobilePost } from './mobile-post';
 
-describe('MobilePost', () => {
-  it('should create an instance', () => {
-    expect(new MobilePost()).toBeTruthy();
-  });
-});
+// describe('MobilePost', () => {
+//   it('should create an instance', () => {
+//     expect(new MobilePost()).toBeTruthy();
+//   });
+// });

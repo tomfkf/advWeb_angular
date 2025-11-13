@@ -1,35 +1,99 @@
-import { Component } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { FormControl, FormsModule, ReactiveFormsModule, ValidatorFn } from '@angular/forms';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
+import { AsyncPipe, CommonModule } from '@angular/common';
+import { TimeFormat } from '../../shared/constants/regex';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import { Observable } from 'rxjs';
+import { map, startWith } from 'rxjs/operators';
+import { TranslatePipe } from '@ngx-translate/core';
+import { MobilePostService } from '../services/mobile-post';
+import { MobilePostQueryResult } from '../models/mobile-post-query-result';
 import { MobilePost } from '../models/mobile-post';
-import { plainToInstance } from 'class-transformer';
-import { CommonModule } from '@angular/common';
-import { getValidators } from '../../shared/decorators/validator.decorator';
 
 
 @Component({
   selector: 'app-mobile-post-create',
-  imports: [ReactiveFormsModule,CommonModule],
+  imports: [ReactiveFormsModule, CommonModule, FormsModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatAutocompleteModule,
+    ReactiveFormsModule,
+    AsyncPipe, TranslatePipe],
   templateUrl: './mobile-post-create.html',
   styleUrl: './mobile-post-create.css',
 })
+
+
 export class MobilePostCreate {
   form: FormGroup;
-  keys = Object.keys(new MobilePost());
+  @Input() isCreation = true;
+  filteredOptions: { [key: string]: Observable<Set<string>> } = {};
+  initMobilePostOption: MobilePost[];
 
-  constructor(fb: FormBuilder) {
-    console.log(this.keys);
+
+
+  constructor(fb: FormBuilder, service: MobilePostService) {
+    const defaultValidators = this.isCreation ? [Validators.required] : [];
     this.form = fb.group({
-      
-    }); 
-    for (const key of this.keys) {
-      this.form.addControl(key, new FormControl('', getValidators(MobilePost.prototype, key) as ValidatorFn[]));
-    }
+      mobileCode: ['', [Validators.maxLength(3)]],
+      locationTC: ['', [Validators.maxLength(100)]],
+      locationSC: ['', [Validators.maxLength(100)]],
+      addressTC: ['', [Validators.maxLength(255)]],
+      nameSC: ['', [Validators.maxLength(50)]],
+      districtSC: ['', [Validators.maxLength(50)]],
+      addressSC: ['', [Validators.maxLength(255)]],
+      nameTC: ['', [Validators.maxLength(50)]],
+      districtTC: ['', [Validators.maxLength(50)]],
+      nameEN: ['', [Validators.maxLength(50)]],
+      districtEN: ['', [Validators.maxLength(50)]],
+      locationEN: ['', [Validators.maxLength(100)]],
+      addressEN: ['', [Validators.maxLength(255)]],
+      seq: [null, [Validators.max(100), Validators.min(1)]],
+      dayOfWeekCode: [null, [Validators.max(5), Validators.min(1)]],
+      latitude: [null, [Validators.max(90), Validators.min(-90)]],
+      longitude: [null, [Validators.max(180), Validators.min(-180)]],
+      closeHour: ['', [Validators.pattern(TimeFormat)]],
+      openHour: ['', [Validators.pattern(TimeFormat)]],
+    });
+
+
+    Object.keys(this.form.controls).forEach(key => {
+
+      const control = this.form.get(key);
+      if (control) {
+        const existingValidators = control.validator ? [control.validator] : [];
+        control.setValidators([...defaultValidators, ...existingValidators]);
+        control.updateValueAndValidity();
+        this.filteredOptions[key] = this.createFilterOption(key as keyof MobilePost);
+
+      }
+    });
+
+    this.initMobilePostOption = [];
+    service.getAllRecords().subscribe((data: MobilePostQueryResult) => {
+      this.initMobilePostOption = data.items || [];
+    });
+
   }
-  // classValidator(control: FormControl): { [s: string]: boolean } | null {
-  //   const instance = plainToInstance(MobilePost, { mobileCode: control.value });
-  //   console.log(control);
-  //   const response = {};
-  //   return response;
-  // }
+
+  private createFilterOption(field: keyof MobilePost): Observable<Set<string>> {
+    return this.form.get(field)!.valueChanges.pipe(
+      startWith(''),
+      map(value => this._filter(value || '', field))
+    );
+  }
+
+  private _filter(value: string, field: keyof MobilePost): Set<string> {
+    const filterValue = value.toLowerCase();
+    console.log('Filtering', field, 'with value:', filterValue);
+    return new Set(this.initMobilePostOption
+      .map(post => String(post[field] ?? ''))
+      .filter(option => option.toLowerCase().includes(filterValue)));
+
+  }
+
+
 }
