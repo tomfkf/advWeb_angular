@@ -15,7 +15,7 @@ export class MobilePostService {
 
   getAllRecords(): Observable<MobilePostQueryResult> {
     const params = new HttpParams()
-    .set('limit', 999999);
+    .set('limit', 9999999);
     return this.http.get<MobilePostQueryResult>(`${this.apiUrl}`, { params });
   }
 }

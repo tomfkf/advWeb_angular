@@ -12,6 +12,7 @@ import { TranslatePipe } from '@ngx-translate/core';
 import { MobilePostService } from '../services/mobile-post';
 import { MobilePostQueryResult } from '../models/mobile-post-query-result';
 import { MobilePost } from '../models/mobile-post';
+import { MobilePostResult } from '../mobile-post-result/mobile-post-result';
 
 
 @Component({
@@ -21,7 +22,7 @@ import { MobilePost } from '../models/mobile-post';
     MatInputModule,
     MatAutocompleteModule,
     ReactiveFormsModule,
-    AsyncPipe, TranslatePipe],
+    AsyncPipe, TranslatePipe,MobilePostResult],
   templateUrl: './mobile-post-create.html',
   styleUrl: './mobile-post-create.css',
 })
@@ -32,7 +33,7 @@ export class MobilePostCreate {
   @Input() isCreation = true;
   filteredOptions: { [key: string]: Observable<Set<string>> } = {};
   initMobilePostOption: MobilePost[];
-
+  test : MobilePostQueryResult = {};
 
 
   constructor(fb: FormBuilder, service: MobilePostService) {
@@ -74,6 +75,7 @@ export class MobilePostCreate {
 
     this.initMobilePostOption = [];
     service.getAllRecords().subscribe((data: MobilePostQueryResult) => {
+      this.test = data;
       this.initMobilePostOption = data.items || [];
     });
 

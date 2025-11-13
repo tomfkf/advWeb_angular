@@ -4,5 +4,4 @@ export class FormMetadata {
     itemsPerPage?: number
     totalPages?: number
     currentPage?: number
-
 }
