@@ -1,15 +1,15 @@
 import { Component, inject, signal } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { MobilePostCreate } from './mobile-post/mobile-post-create/mobile-post-create';
 import {
   TranslateService,
   TranslatePipe,
   TranslateDirective
 } from "@ngx-translate/core";
+import { MobilePostSearch } from "./mobile-post/mobile-post-search/mobile-post-search";
 
 @Component({
   selector: 'app-root',
-  imports: [MobilePostCreate],
+  imports: [ MobilePostSearch],
   templateUrl: './app.html',
   styleUrl: './app.css'
 })

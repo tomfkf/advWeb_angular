@@ -1,22 +1,52 @@
+<section>
+  <div class="example-button-row">
+    <div class="example-flex-container">
+      <button matFab extended>
+        <mat-icon>add</mat-icon>
+        Basic
+      </button>
+      <button matFab extended disabled>
+        <mat-icon>favorite</mat-icon>
+        Disabled
+      </button>
+      <a matFab extended routerLink=".">
+        <mat-icon>favorite</mat-icon>
+        Link
+      </a>
+    </div>
+  </div>
+</section>
+
+
 <div class="mat-elevation-z8">
-  <table mat-table [dataSource]="dataSource">
 
-    @for(key of displayedColumns; track key) {
-        <ng-container matColumnDef="{{key}}">
-        <th mat-header-cell *matHeaderCellDef>{{ 'MOBILE_POST.FIELDS.' + key | translate }} </th>
-        <td mat-cell *matCellDef="let element"> {{element[key]}} </td>
+  <section class="example-container mat-elevation-z8" tabindex="0">
+
+    @if(dataSource && dataSource.ready) {
+      <table mat-table [dataSource]="dataSource">
+
+        @for(key of mobilePostKey; track key) {
+          <ng-container matColumnDef="{{key}}">
+            <th mat-header-cell *matHeaderCellDef>{{ 'MOBILE_POST.FIELDS.' + key | translate }} </th>
+            <td mat-cell *matCellDef="let element"> {{element[key]}} </td>
+          </ng-container>
+        }
+        
+        <ng-container matColumnDef="star" stickyEnd="true">
+          <th mat-header-cell *matHeaderCellDef aria-label="row actions">&nbsp;</th>
+          <td mat-cell *matCellDef="let element">
+            <mat-icon>more_vert</mat-icon>
+          </td>
         </ng-container>
-    }
-    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-    <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-  </table>
 
-  <mat-paginator 
-      [length]="dataSource.data.length"
-      [pageSizeOptions]="[5, 10, 20]"
-                    showFirstLastButtons>
+        <tr mat-header-row *matHeaderRowDef="findDisplayColumnsByLang(); sticky:true"></tr>
+        <tr mat-row *matRowDef="let row; columns: findDisplayColumnsByLang();"></tr>
+      </table>
+
+    }
+
+
+  </section>
+  <mat-paginator  [pageSizeOptions]="[ 5, 10,20]" showFirstLastButtons>
   </mat-paginator>
 </div>
-
-<!-- {{result | json}} -->
-{{displayedColumns | json}}

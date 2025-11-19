@@ -2,15 +2,24 @@ import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MobilePostService } from '../services/mobile-post';
 import { TimeFormat } from '../../shared/constants/regex';
+import { MobilePostQueryResult } from '../models/mobile-post-query-result';
+import { MobilePost } from '../models/mobile-post';
+import { MobilePostResult } from '../mobile-post-result/mobile-post-result';
+import { MobilePostQueryRequest } from '../models/mobile-post-query-request';
 
 @Component({
   selector: 'app-mobile-post-search',
-  imports: [],
+  imports: [MobilePostResult],
   templateUrl: './mobile-post-search.html',
   styleUrl: './mobile-post-search.css',
 })
 export class MobilePostSearch {
   form: FormGroup;
+  initMobilePostOption: MobilePost[];
+  // queryResult : MobilePostQueryResult = {};
+    
+  queryFilter: MobilePostQueryRequest = new MobilePostQueryRequest();
+  
   constructor(fb: FormBuilder, service: MobilePostService) {
     this.form = fb.group({
       mobileCode: ['', [Validators.maxLength(3)]],
@@ -26,6 +35,16 @@ export class MobilePostSearch {
       openHour: ['', [Validators.pattern(TimeFormat)]],
       id :['']
     });
+
+    this.initMobilePostOption = [];
+    service.getAllRecords().subscribe((data: MobilePostQueryResult) => {
+      // this.queryResult = data;
+      this.initMobilePostOption = data.items || [];
+    });
+  }
+
+  onSubmit() {
+    this.queryFilter = { ...this.form.value };
   }
   
 }

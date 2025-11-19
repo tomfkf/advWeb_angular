@@ -3,6 +3,7 @@ import { Injectable } from '@angular/core';
 import { MobilePost } from '../models/mobile-post';
 import { Observable } from 'rxjs';
 import { MobilePostQueryResult } from '../models/mobile-post-query-result';
+import { MobilePostQueryRequest } from '../models/mobile-post-query-request';
 
 @Injectable({
   providedIn: 'root',
@@ -17,5 +18,20 @@ export class MobilePostService {
     const params = new HttpParams()
     .set('limit', 9999999);
     return this.http.get<MobilePostQueryResult>(`${this.apiUrl}`, { params });
+  }
+
+  getRecord(query: MobilePostQueryRequest): Observable<MobilePostQueryResult> {
+    return this.http.get<MobilePostQueryResult>(`${this.apiUrl}`, { params: this.cleanUp(query) as any });
+  }
+
+
+  private cleanUp(object : any): any {
+    const cleanedObject: any = {};
+    for (const key in object) {
+      if (object[key] !== null && object[key] !== undefined && object[key] !== '') {
+        cleanedObject[key] = object[key];
+      }
+    }
+    return cleanedObject;
   }
 }

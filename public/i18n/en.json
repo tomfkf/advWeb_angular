@@ -19,7 +19,8 @@
       "latitude": "Latitude",
       "longitude": "Longitude",
       "closeHour": "Close Hour",
-      "openHour": "Open Hour"
+      "openHour": "Open Hour",
+      "id":"ID"
     },
     "PLACEHOLDER": {
       "mobileCode": "Enter mobile code (max 3 chars)",

@@ -22,7 +22,7 @@ import { MobilePostResult } from '../mobile-post-result/mobile-post-result';
     MatInputModule,
     MatAutocompleteModule,
     ReactiveFormsModule,
-    AsyncPipe, TranslatePipe,MobilePostResult],
+    AsyncPipe, TranslatePipe],
   templateUrl: './mobile-post-create.html',
   styleUrl: './mobile-post-create.css',
 })
@@ -50,7 +50,7 @@ export class MobilePostCreate {
       districtTC: ['', [Validators.maxLength(50)]],
       nameEN: ['', [Validators.maxLength(50)]],
       districtEN: ['', [Validators.maxLength(50)]],
-      locationEN: ['', [Validators.maxLength(100)]],
+      locationEN: ['Sham Tseng', [Validators.maxLength(100)]],
       addressEN: ['', [Validators.maxLength(255)]],
       seq: [null, [Validators.max(100), Validators.min(1)]],
       dayOfWeekCode: [null, [Validators.max(5), Validators.min(1)]],
@@ -69,7 +69,6 @@ export class MobilePostCreate {
         control.setValidators([...defaultValidators, ...existingValidators]);
         control.updateValueAndValidity();
         this.filteredOptions[key] = this.createFilterOption(key as keyof MobilePost);
-
       }
     });
 
@@ -94,7 +93,6 @@ export class MobilePostCreate {
       .map(post => String(post[field] ?? ''))
       .filter(option => option.toLowerCase().includes(filterValue)))
       ;
-
   }
 
 
