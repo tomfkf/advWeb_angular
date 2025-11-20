@@ -27,7 +27,8 @@ import { MatSort } from '@angular/material/sort';
   templateUrl: './mobile-post-result.html',
   styleUrl: './mobile-post-result.css',
 })
-export class MobilePostResult implements OnInit {
+export class 
+MobilePostResult implements OnInit {
   // @Input() result: MobilePostQueryResult = {};
   // dataSource = new MatTableDataSource<MobilePost>(this.result?.items || []);
   mobilePostKey: string[] = Object.keys(new MobilePost());
@@ -40,7 +41,7 @@ export class MobilePostResult implements OnInit {
   dataSource!: MobilePostDataSource;
   @ViewChild(MatSort) sort!: MatSort;
 
-  @Input() queryFilter: MobilePostQueryRequest = new MobilePostQueryRequest();
+  @Input() queryFilter!: MobilePostQueryRequest | null;
 
   lang: string = 'EN';
 
@@ -52,11 +53,12 @@ export class MobilePostResult implements OnInit {
     this.dataSource = new MobilePostDataSource(this.mobilePostService,this.queryFilter, this.paginator, this.sort);
   }
 
-  // ngOnChanges(changes: SimpleChanges): void {
-  //   if (changes['result'] && this.result) {
-  //     this.dataSource.data = this.result.items || [];
-  //   }
-  // }
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['queryFilter'] && this.queryFilter) {
+      this.dataSource.setQueryFilter(this.queryFilter);
+      this.dataSource.updateDataFromServer();
+    }
+  }
 
   ngOnInit(): void {
     // throw new Error('Method not implemented.');

@@ -20,7 +20,7 @@
       "longitude": "Longitude",
       "closeHour": "Close Hour",
       "openHour": "Open Hour",
-      "id":"ID"
+      "id": "ID"
     },
     "PLACEHOLDER": {
       "mobileCode": "Enter mobile code (max 3 chars)",
@@ -41,6 +41,21 @@
       "longitude": "Enter longitude (-180 to 180)",
       "closeHour": "Enter closing time (HH:mm:ss)",
       "openHour": "Enter opening time (HH:mm:ss)"
+    },
+    "QUERY": {
+      "mobileCode": "Mobile Code",
+      "location": "Location",
+      "address": "Address",
+      "name": "Name",
+      "district": "District",
+      "seq": "Sequence",
+      "dayOfWeekCode": "Day of Week Code",
+      "id": "ID",
+      "latitude": "Latitude",
+      "longitude": "Longitude",
+      "closeHour": "Close Hour",
+      "openHour": "Open Hour",
+      "keyword": "Keyword"
     },
     "ERROR": {
       "REQUIRED": "This field is required",

@@ -24,9 +24,7 @@
   box-sizing: border-box;
 }
 
-.mat-mdc-header-row, .mat-mdc-footer-row, .mat-mdc-row {
-  min-width: 1920px; 
-}
+
 
 
 .mat-mdc-table-sticky-border-elem-right {

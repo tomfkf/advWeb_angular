@@ -1,0 +1,36 @@
+.form-container {
+  display: flex;
+  flex-direction: column;   
+  align-items: center;     
+  width: 100%;
+}
+
+.field-row {
+  width: 100%;
+  max-width: 800px;
+}
+
+.advSearch{
+  position: absolute;
+  top: 100%;         
+  margin-top: 0px;  
+  z-index: 1000;  
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2); 
+}
+.advSearch-field {
+  width: 120px;   
+  text-align: left;
+  margin-right: 8px;
+}
+.advSearch-input {
+  flex: 1;
+}
+.example-section {
+  margin: 12px 0;
+}
+
+.example-margin {
+  margin: 0 12px;
+}
+
+

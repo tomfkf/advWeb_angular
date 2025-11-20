@@ -1,3 +1,62 @@
-<p>mobile-post-search works!</p>
+<div>
+    <div>{{ 'MOBILE_POST.TITLE' | translate }}</div>
+    <form [formGroup]="form" class="ui form error">
+        <div class="form-container">
+            <div class="ui action input field-row">
+                <input type="text" matInput formControlName="keyword" [matAutocomplete]="autoMobileCode">
+                <mat-autocomplete #autoMobileCode="matAutocomplete">
+                    <!-- @for (option of filteredOptions['mobileCode'] | async; track option) {
+                            <mat-option [value]="option">{{option}}</mat-option>
+                        } -->
+                </mat-autocomplete>
 
-<app-mobile-post-result [queryFilter]="queryFilter" ></app-mobile-post-result>
+                <button class="ui icon button" (click)="switchAdvSearch()">
+                    <i class="sliders horizontal icon"></i>
+                </button>
+                <button class="ui icon button" (click)="onSubmit()">
+                    <i class="search icon"></i>
+                </button>
+            </div>
+            @if (openAdvancedSearch) {
+            <div class="ui segment field-row advSearch">
+                @for(key of advQueryKey ;track key) {
+
+                @if(key.type && key.type == 'text') {
+                <div class="inline field">
+                    <label class="advSearch-field">{{ 'MOBILE_POST.QUERY.' + key.field | translate}}</label>
+                    <input class="advSearch-input" type="text" formControlName="{{key.field}}">
+                </div>
+                }
+                @if(key.type && key.type == 'timeRange') {
+                <div class="inline field">
+                    <label class="advSearch-field">{{ 'MOBILE_POST.QUERY.' + key.field | translate}}</label>
+                    <input class="advSearch-input" type="time" formControlName="{{key.field}}Start">
+                    <label style="margin: 0 8px">-</label>
+                    <input class="advSearch-input" type="time" formControlName="{{key.field}}End">
+                </div>
+                }
+                @if(key.type && key.type == 'array') {
+                <div class="inline field">
+                    <label class="advSearch-field">{{ 'MOBILE_POST.QUERY.' + key.field | translate}}</label>
+                    @for(option of getUniqueOptions(key.field); track option) {
+                    <div class="ui checkbox">
+                        <input type="checkbox" class="advSearch-checkbox"
+                            (change)="updateArrayValue(key.field , option, $event)">
+                        <label>{{ option }}</label>
+              
+                    </div>
+                    }
+
+                </div>
+                }
+
+                }
+
+
+            </div>
+            }
+        </div>
+    </form>
+    {{form.value | json}}
+
+</div>

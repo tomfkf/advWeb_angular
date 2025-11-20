@@ -21,7 +21,7 @@ export class MobilePostDataSource extends DataSource<MobilePost> {
 
   constructor(
     private readonly mobilePostService: MobilePostService,
-    private queryFilter: MobilePostQueryRequest,
+    private queryFilter: MobilePostQueryRequest | null,
     private paginator: MatPaginator,
     private sort: MatSort
   ) {
@@ -37,7 +37,8 @@ export class MobilePostDataSource extends DataSource<MobilePost> {
 
   updateDataFromServer(): void {
     console.log('Fetching data from server with pagination and sorting...');
-    let queryFilter = { ...this.queryFilter };
+    console.log(this.queryFilter);
+    let queryFilter = this.queryFilter == null ? new MobilePostQueryRequest() : { ...this.queryFilter };
     queryFilter.limit = this.paginator.pageSize;
     queryFilter.page = this.paginator.pageIndex + 1;
 
@@ -48,4 +49,10 @@ export class MobilePostDataSource extends DataSource<MobilePost> {
       this.ready = true;
     });
   }
+
+  setQueryFilter(queryFilter: MobilePostQueryRequest | null): void {  
+    this.queryFilter = queryFilter;
+    this.paginator.pageIndex = 0;
+  }
+
 }

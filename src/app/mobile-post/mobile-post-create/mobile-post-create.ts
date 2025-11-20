@@ -33,7 +33,7 @@ export class MobilePostCreate {
   @Input() isCreation = true;
   filteredOptions: { [key: string]: Observable<Set<string>> } = {};
   initMobilePostOption: MobilePost[];
-  test : MobilePostQueryResult = {};
+  test: MobilePostQueryResult = {};
 
 
   constructor(fb: FormBuilder, service: MobilePostService) {
@@ -63,8 +63,8 @@ export class MobilePostCreate {
 
     Object.keys(this.form.controls).forEach(key => {
 
-      const control = this.form.get(key);
-      if (control) {
+    const control = this.form.get(key);
+    if (control) {
         const existingValidators = control.validator ? [control.validator] : [];
         control.setValidators([...defaultValidators, ...existingValidators]);
         control.updateValueAndValidity();
