@@ -26,6 +26,7 @@
 .advSearch-input {
   flex: 1;
 }
+
 .example-section {
   margin: 12px 0;
 }
@@ -35,3 +36,24 @@
 }
 
 
+.filter-option-button {
+  font-size: 12px;
+  height: 28px;
+  margin-right: 10px;
+
+}
+
+.filter-option-button-row{
+  width: 100%;
+  max-width: 800px;
+}
+
+.expand-button-container {
+  display: flex;
+  justify-content: center; /* center horizontally */
+  margin-top: 8px;         /* add spacing above */
+}
+
+.expand-button-container button {
+  display: inline-flex;
+}

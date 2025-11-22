@@ -55,7 +55,8 @@
       "longitude": "Longitude",
       "closeHour": "Close Hour",
       "openHour": "Open Hour",
-      "keyword": "Keyword"
+      "keyword": "Keyword",
+      "CLEAR_ALL": "Clear All"
     },
     "ERROR": {
       "REQUIRED": "This field is required",

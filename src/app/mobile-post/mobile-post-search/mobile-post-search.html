@@ -3,13 +3,12 @@
     <form [formGroup]="form" class="ui form error">
         <div class="form-container">
             <div class="ui action input field-row">
-                <input type="text" matInput formControlName="name" [matAutocomplete]="autoMobileCode">
+                <input type="text" matInput formControlName="keyword" [matAutocomplete]="autoMobileCode">
                 <mat-autocomplete #autoMobileCode="matAutocomplete">
-                    @for (option of filteredOptions['name'] | async; track option) {
+                    @for (option of filteredOptions['keyword'] | async; track option) {
                     <mat-option [value]="option">{{option}}</mat-option>
                     }
                 </mat-autocomplete>
-
                 <button class="ui icon button" (click)="switchAdvSearch()">
                     <i class="sliders horizontal icon"></i>
                 </button>
@@ -19,30 +18,53 @@
             </div>
             <div class="ui segment field-row advSearch" [style.display]="openAdvancedSearch ? 'block' : 'none'">
                 @for(key of advQueryKey ;track key) {
+                @if(key.type && key.type == 'text' || key.type == 'timeRange' || key.type == 'array') {
+                <div class="inline field">
+                    <label class="advSearch-field">{{ 'MOBILE_POST.QUERY.' + key.field | translate}}</label>
+                    @switch (key.type) {
+                    @case ('text'){
 
-                @if(key.type && key.type == 'text') {
-                <div class="inline field">
-                    <label class="advSearch-field">{{ 'MOBILE_POST.QUERY.' + key.field | translate}}</label>
-                    <input class="advSearch-input" type="text" formControlName="{{key.field}}">
-                </div>
-                }
-                @if(key.type && key.type == 'timeRange') {
-                <div class="inline field">
-                    <label class="advSearch-field">{{ 'MOBILE_POST.QUERY.' + key.field | translate}}</label>
+                    <input type="text" formControlName="{{key.field}}" [matAutocomplete]="auto">
+
+                        <mat-autocomplete #auto="matAutocomplete">
+                            @for (option of filteredOptions[key.field] | async; track option) {
+                            <mat-option [value]="option">{{option}}</mat-option>
+                            }
+                        </mat-autocomplete>
+                    }
+                    @case ('timeRange'){
+
                     <input class="advSearch-input" step="1" type="time" formControlName="{{key.field}}Start">
                     <label style="margin: 0 8px">-</label>
                     <input class="advSearch-input" step="1" type="time" formControlName="{{key.field}}End">
-                </div>
-                }
-                @if(key.type && key.type == 'array') {
-                <div class="inline field">
-                    <label class="advSearch-field">{{ 'MOBILE_POST.QUERY.' + key.field | translate}}</label>
-                    @for(option of getUniqueOptions(key.field); track option) {
-                    <mat-checkbox (change)="updateArrayValue(key.field, option, $event)">
+
+                    }
+                    @case ('array'){
+                    @let optionsResult = getUniqueOptions(key.field,expandedFields[key.field]);
+
+
+                    @for(option of optionsResult.option; track option) {
+                    <mat-checkbox (change)="updateArrayValue(key.field, option, $event)"
+                        [checked]="form.controls[key.field].value?.includes(option)">
                         {{ option }}
                     </mat-checkbox>
                     }
+                    @if(optionsResult.overLimit) {
+                    <div class="expand-button-container">
+                        <button mat-icon-button (click)="toggleExpand(key.field)">
+                            <mat-icon>
+                                {{ expandedFields[key.field] ? 'expand_less' : 'expand_more' }}
+                            </mat-icon>
+                        </button>
+                    </div>
 
+                    }
+                    }
+
+                    @default {
+
+                    }
+                    }
                 </div>
                 }
 
@@ -50,8 +72,45 @@
 
 
             </div>
+            <div class="filter-option-button-row">
+                @for(key of advQueryKey ;track key) {
+
+                @if(form.value[key.field] && key.type && key.type == 'text' || (key.type == 'timeRange' &&
+                (this.form.controls[key.field+'Start'].value || this.form.controls[key.field+'End'].value)) || (key.type
+                == 'array' && this.form.controls[key.field].value.length >0)) {
+                <button matButton="outlined" extended class="filter-option-button"
+                    (click)="key.type == 'timeRange' ? removeValue([key.field+'Start',key.field+'End']) : removeValue(key.field)">
+                    {{ 'MOBILE_POST.QUERY.' + key.field | translate}} =
+
+                    @switch (key.type) {
+                    @case('text') {
+                    {{form.value[key.field]}}
+                    }
+                    @case ('timeRange') {
+
+                    {{form.value[key.field+'Start']}} @if(form.value[key.field+'Start'] && form.value[key.field+'End'])
+                    {-} {{form.value[key.field+'End']}}
+                    }
+                    @case ('array') {
+                    {{form.value[key.field] | json }}
+                    }
+                    }
+                    <mat-icon>close</mat-icon>
+                </button>
+                }
+
+
+                }
+                <button matButton="outlined" extended class="filter-option-button" (click)="removeAllValue()">
+                    {{ 'MOBILE_POST.QUERY.CLEAR_ALL' | translate}}
+                    <mat-icon>close</mat-icon>
+                </button>
+            </div>
+
+
         </div>
     </form>
     {{form.value | json}}
+
 
 </div>

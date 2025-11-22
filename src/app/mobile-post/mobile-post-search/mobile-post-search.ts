@@ -18,10 +18,13 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { TranslatePipe } from '@ngx-translate/core';
 import { MatExpansionModule } from '@angular/material/expansion';
-import { MatIcon } from '@angular/material/icon';
+import { MatIconModule } from '@angular/material/icon';
 import { map, Observable, startWith } from 'rxjs';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatCardModule } from '@angular/material/card';
+import { MatDividerModule } from '@angular/material/divider';
+import { MatButtonModule } from '@angular/material/button';
+import { MatChipsModule } from '@angular/material/chips';
 
 @Component({
   selector: 'app-mobile-post-search',
@@ -34,33 +37,35 @@ import { MatCardModule } from '@angular/material/card';
     MatAutocompleteModule,
     ReactiveFormsModule,
     TranslatePipe,
-    MatExpansionModule,MatCheckboxModule,MatCardModule
+    MatExpansionModule, MatCheckboxModule, MatCardModule, MatButtonModule, MatDividerModule, MatIconModule, MatChipsModule
   ],
   templateUrl: './mobile-post-search.html',
   styleUrl: './mobile-post-search.css',
 })
 export class MobilePostSearch {
+
   form: FormGroup;
   initMobilePostOption: MobilePost[];
   @Output() queryFilter = new EventEmitter<MobilePostQueryRequest>();
   openAdvancedSearch = false;
   advQueryKey: { field: string; type: string }[] = [
     // { field: 'id' , type: 'array' },
-
-    { field: 'mobileCode' , type: 'array' },
-    { field: 'location' , type: 'text' },
-    { field: 'address' , type: 'text' },
-    { field: 'name' , type: 'text' },
-    { field: 'district' , type: 'text' },
-    { field: 'seq' , type: 'array' },
-    { field: 'dayOfWeekCode' , type: 'array' },
+    { field: 'mobileCode', type: 'array' },
+    { field: 'location', type: 'array' },
+    { field: 'name', type: 'array' },
+    { field: 'district', type: 'array' },
+    { field: 'address', type: 'text' },
+    { field: 'seq', type: 'array' },
+    { field: 'dayOfWeekCode', type: 'array' },
     // { "field": "latitude" , type: "number" },
     // { "field": "longitude" , type: "number" },
-    { field: 'closeHour' , type: 'timeRange' },
+    { field: 'closeHour', type: 'timeRange' },
     { field: 'openHour', type: 'timeRange' },
   ];
 
-  filteredOptions: { [key: string]: Observable<Set<string>> } = {};
+  filteredOptions: { [key: string]: Observable<string[]> } = {};
+  currentLanguage = 'EN';
+  expandedFields: { [field: string]: boolean } = {};
 
   constructor(fb: FormBuilder, service: MobilePostService, private eRef: ElementRef) {
     this.form = fb.group({
@@ -91,6 +96,8 @@ export class MobilePostSearch {
         this.filteredOptions[key.field] = this.createFilterOption(key.field);
       }
     }
+    this.filteredOptions['keyword'] = this.createFilterOption('keyword');
+
   }
 
   @HostListener('document:click', ['$event'])
@@ -109,36 +116,103 @@ export class MobilePostSearch {
     console.log(this.openAdvancedSearch);
   }
 
-  getUniqueOptions(field: string): any[] {
-    let keyField = field as keyof MobilePost;
-    const values = this.initMobilePostOption.map((opt) => opt[keyField]);
-    return [...new Set(values)];
+  getUniqueOptions(field: string, expend: boolean): { overLimit: boolean, option: any[] } {
+    const keyField = field as keyof MobilePost;
+    const keyLangField = field + this.currentLanguage as keyof MobilePost;
+
+    const values = this.initMobilePostOption.map((opt) => opt[keyField] || opt[keyLangField]).filter(v => v !== undefined && v !== null).map(v => String(v));
+    let result = [...new Set(values)];
+    let wordCounter = 0;
+    const limitCount = 200;
+
+    const filteredResult = result.filter((word) => {
+      wordCounter += word.length;
+      return wordCounter <= limitCount;
+    });
+
+    let returnResult: (string | number)[] = expend ? result : filteredResult;
+    returnResult = returnResult.map((word) => {
+      const number = Number(word);
+      if (field === 'seq') {
+        console.log('parsing', word, number, isNaN(number));
+      }
+      return isNaN(number) ? word : number;
+    }).sort((a, b) => {
+      if (typeof a === "number" && typeof b === "number") return a - b;
+      if (typeof a === "string" && typeof b === "string") return a.localeCompare(b);
+      return typeof a === "number" ? -1 : 1;
+    });
+
+    return { overLimit: wordCounter > limitCount, option: returnResult };
   }
 
   updateArrayValue(field: string, value: any, event: any) {
-    console.log("bbb",event)
+    const currentValue = this.form.controls[field].value || [];
     if (event.checked) {
-      this.form.controls[field].value.push(value);
+      this.form.controls[field].setValue([...currentValue, value]);
     } else {
-      this.form.controls[field].value.splice(this.form.controls[field].value.indexOf(value), 1);
+      this.form.controls[field].setValue(currentValue.filter((v: any) => v !== value));
     }
   }
 
-  private createFilterOption(field: string): Observable<Set<string>> {
+  private createFilterOption(field: string): Observable<string[]> {
     return this.form.get(field)!.valueChanges.pipe(
       startWith(''),
       map((value) => this._filter(value || '', field))
     );
   }
 
-  private _filter(value: string, field: string): Set<string> {
-    return new Set();
-    // const filterValue = value.toLowerCase();
-    // const fields = [field+'EN' as keyof MobilePost, field+'TC' as keyof MobilePost, field+'SC' as keyof MobilePost];
-    // return new Set(
-    //   this.initMobilePostOption
-    //     .map((post) => String(post[fields[0]] ?? ''))
-    //     .filter((option) => option.toLowerCase().includes(filterValue))
-    // );
+  private _filter(value: string, field: string): string[] {
+    console.log("filtering", value, field);
+    const keyField = field as keyof MobilePost;
+    const keyLangField = field + this.currentLanguage as keyof MobilePost;
+    let result: Set<string> = new Set<string>();
+    if (field === 'keyword') {
+      const keywordField = ['locationTC', 'locationSC', 'locationEN', 'addressTC', 'addressSC', 'addressEN', 'nameTC', 'nameSC', 'nameEN', 'districtTC', 'districtSC', 'districtEN']
+      for (let mobilePost of this.initMobilePostOption) {
+        for (let kField of keywordField) {
+          const fieldValue = String(mobilePost[kField as keyof MobilePost]);
+          if (fieldValue && fieldValue.toLowerCase().includes(value.toLowerCase())) {
+            result.add(fieldValue);
+          }
+        }
+      }
+    } else {
+      result = new Set(
+        this.initMobilePostOption
+          .map((post) => String(post[keyField] ?? post[keyLangField] ?? ''))
+          .filter((option) => option.toLowerCase().includes(value.toLowerCase()))
+      );
+    }
+
+    return Array.from(result).sort();
+  }
+
+  removeValue(keys: string | string[]) {
+    console.log("remove keys", keys);
+    let removeKeys: string[] = [];
+    if (Array.isArray(keys)) {
+      removeKeys = keys;
+    } else {
+      removeKeys = [keys];
+    }
+    for (let key of removeKeys) {
+      let value = this.form.controls[key].value;
+
+      if (Array.isArray(value)) {
+        this.form.controls[key].setValue([]);
+      } else {
+        this.form.controls[key].setValue('');
+      }
+    }
+
+
+  }
+
+  removeAllValue() {
+    this.removeValue(this.advQueryKey.map(k => k.field).concat(['keyword']));
+  }
+  toggleExpand(field: string) {
+    this.expandedFields[field] = !this.expandedFields[field];
   }
 }
