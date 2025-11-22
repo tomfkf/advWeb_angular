@@ -20,10 +20,11 @@ import { MobilePostDataSource } from '../dataSource/mobile-post-data-source';
 import { MobilePostService } from '../services/mobile-post';
 import { MobilePostQueryRequest } from '../models/mobile-post-query-request';
 import { MatSort } from '@angular/material/sort';
+import { MatCardModule } from '@angular/material/card';
 
 @Component({
   selector: 'app-mobile-post-result',
-  imports: [MatTableModule, MatPaginatorModule, CommonModule, TranslatePipe, MatIconModule],
+  imports: [MatTableModule, MatPaginatorModule, CommonModule, TranslatePipe, MatIconModule,MatCardModule],
   templateUrl: './mobile-post-result.html',
   styleUrl: './mobile-post-result.css',
 })
@@ -86,4 +87,6 @@ MobilePostResult implements OnInit {
     });
     return displayedColumns;
   }
+
+  
 }

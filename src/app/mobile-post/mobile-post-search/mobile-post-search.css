@@ -21,6 +21,7 @@
   width: 120px;   
   text-align: left;
   margin-right: 8px;
+  min-width: 120px;
 }
 .advSearch-input {
   flex: 1;

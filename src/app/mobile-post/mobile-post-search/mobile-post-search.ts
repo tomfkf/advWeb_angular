@@ -1,5 +1,11 @@
 import { Component, ElementRef, EventEmitter, HostListener, Output } from '@angular/core';
-import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import {
+  FormBuilder,
+  FormGroup,
+  FormsModule,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
 import { MobilePostService } from '../services/mobile-post';
 import { TimeFormat } from '../../shared/constants/regex';
 import { MobilePostQueryResult } from '../models/mobile-post-query-result';
@@ -12,16 +18,24 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { TranslatePipe } from '@ngx-translate/core';
 import { MatExpansionModule } from '@angular/material/expansion';
-import { MatIcon } from "@angular/material/icon";
+import { MatIcon } from '@angular/material/icon';
+import { map, Observable, startWith } from 'rxjs';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatCardModule } from '@angular/material/card';
 
 @Component({
   selector: 'app-mobile-post-search',
-  imports: [ReactiveFormsModule, CommonModule, FormsModule,
+  imports: [
+    ReactiveFormsModule,
+    CommonModule,
+    FormsModule,
     MatFormFieldModule,
     MatInputModule,
     MatAutocompleteModule,
     ReactiveFormsModule,
-    TranslatePipe, MatExpansionModule],
+    TranslatePipe,
+    MatExpansionModule,MatCheckboxModule,MatCardModule
+  ],
   templateUrl: './mobile-post-search.html',
   styleUrl: './mobile-post-search.css',
 })
@@ -30,23 +44,25 @@ export class MobilePostSearch {
   initMobilePostOption: MobilePost[];
   @Output() queryFilter = new EventEmitter<MobilePostQueryRequest>();
   openAdvancedSearch = false;
-  advQueryKey: { field: keyof MobilePost; type: string }[] = [
-    { "field": "id" as keyof MobilePost, type: "array" },
+  advQueryKey: { field: string; type: string }[] = [
+    // { field: 'id' , type: 'array' },
 
-    { "field": "mobileCode" as keyof MobilePost, type: "array" },
-    { "field": "location" as keyof MobilePost, type: "text" },
-    { "field": "address" as keyof MobilePost, type: "text" },
-    { "field": "name" as keyof MobilePost, type: "text" },
-    { "field": "district" as keyof MobilePost, type: "text" },
-    { "field": "seq" as keyof MobilePost, type: "array" },
-    { "field": "dayOfWeekCode" as keyof MobilePost, type: "array" },
-    { "field": "latitude" as keyof MobilePost, type: "number" },
-    { "field": "longitude" as keyof MobilePost, type: "number" },
-    { "field": "closeHour" as keyof MobilePost, type: "timeRange" },
-    { "field": "openHour", type: "timeRange" }
+    { field: 'mobileCode' , type: 'array' },
+    { field: 'location' , type: 'text' },
+    { field: 'address' , type: 'text' },
+    { field: 'name' , type: 'text' },
+    { field: 'district' , type: 'text' },
+    { field: 'seq' , type: 'array' },
+    { field: 'dayOfWeekCode' , type: 'array' },
+    // { "field": "latitude" , type: "number" },
+    // { "field": "longitude" , type: "number" },
+    { field: 'closeHour' , type: 'timeRange' },
+    { field: 'openHour', type: 'timeRange' },
   ];
 
-  constructor(fb: FormBuilder, service: MobilePostService) {
+  filteredOptions: { [key: string]: Observable<Set<string>> } = {};
+
+  constructor(fb: FormBuilder, service: MobilePostService, private eRef: ElementRef) {
     this.form = fb.group({
       keyword: ['', [Validators.maxLength(255)]],
       mobileCode: [[], [Validators.maxLength(3)]],
@@ -62,7 +78,7 @@ export class MobilePostSearch {
       closeHourEnd: ['', [Validators.pattern(TimeFormat)]],
       openHourStart: ['', [Validators.pattern(TimeFormat)]],
       openHourEnd: ['', [Validators.pattern(TimeFormat)]],
-      id: [[]]
+      id: [[]],
     });
 
     this.initMobilePostOption = [];
@@ -70,10 +86,21 @@ export class MobilePostSearch {
       // this.queryResult = data;
       this.initMobilePostOption = data.items || [];
     });
+    for (let key of this.advQueryKey) {
+      if (key.type === 'text') {
+        this.filteredOptions[key.field] = this.createFilterOption(key.field);
+      }
+    }
   }
 
+  @HostListener('document:click', ['$event'])
+  clickOutside(event: Event) {
+    if (this.openAdvancedSearch && !this.eRef.nativeElement.contains(event.target)) {
+      this.openAdvancedSearch = false;
+    }
+  }
   onSubmit() {
-    console.log("aaa");
+    console.log('aaa');
     this.queryFilter.emit({ ...this.form.value });
   }
 
@@ -82,19 +109,36 @@ export class MobilePostSearch {
     console.log(this.openAdvancedSearch);
   }
 
-
   getUniqueOptions(field: string): any[] {
     let keyField = field as keyof MobilePost;
-    const values = this.initMobilePostOption.map(opt => opt[keyField]);
+    const values = this.initMobilePostOption.map((opt) => opt[keyField]);
     return [...new Set(values)];
   }
 
   updateArrayValue(field: string, value: any, event: any) {
-    if (event.target.checked) {
+    console.log("bbb",event)
+    if (event.checked) {
       this.form.controls[field].value.push(value);
     } else {
       this.form.controls[field].value.splice(this.form.controls[field].value.indexOf(value), 1);
     }
   }
 
+  private createFilterOption(field: string): Observable<Set<string>> {
+    return this.form.get(field)!.valueChanges.pipe(
+      startWith(''),
+      map((value) => this._filter(value || '', field))
+    );
+  }
+
+  private _filter(value: string, field: string): Set<string> {
+    return new Set();
+    // const filterValue = value.toLowerCase();
+    // const fields = [field+'EN' as keyof MobilePost, field+'TC' as keyof MobilePost, field+'SC' as keyof MobilePost];
+    // return new Set(
+    //   this.initMobilePostOption
+    //     .map((post) => String(post[fields[0]] ?? ''))
+    //     .filter((option) => option.toLowerCase().includes(filterValue))
+    // );
+  }
 }
