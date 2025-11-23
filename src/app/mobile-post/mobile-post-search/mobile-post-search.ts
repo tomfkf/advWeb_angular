@@ -133,9 +133,6 @@ export class MobilePostSearch {
     let returnResult: (string | number)[] = expend ? result : filteredResult;
     returnResult = returnResult.map((word) => {
       const number = Number(word);
-      if (field === 'seq') {
-        console.log('parsing', word, number, isNaN(number));
-      }
       return isNaN(number) ? word : number;
     }).sort((a, b) => {
       if (typeof a === "number" && typeof b === "number") return a - b;

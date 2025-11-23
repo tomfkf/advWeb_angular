@@ -1,26 +1,19 @@
-<section>
-  <div>
-    <div >
-      <button matFab extended>
-        <mat-icon>add</mat-icon>
-        Basic
-      </button>
-      <button matFab extended disabled>
-        <mat-icon>favorite</mat-icon>
-        Disabled
-      </button>
-      <a matFab extended routerLink=".">
-        <mat-icon>favorite</mat-icon>
-        Link
-      </a>
-    </div>
-  </div>
-</section>
+<!-- <div class="table-container">
 
+  <section tabindex="0">
+    <section>
+      <div>
+        <div>
+          @for(key of mobilePostKey; track key) {
 
-<div class="table-container">
-
-  <section  tabindex="0">
+          <button matButton="outlined" extended class="filter-option-button">
+            {{ 'MOBILE_POST.FIELDS.' + key | translate }}
+            <mat-icon>close</mat-icon>
+          </button>
+          }
+        </div>
+      </div>
+    </section>
 
     @if(dataSource && dataSource.ready) {
     <table mat-table [dataSource]="dataSource">
@@ -49,4 +42,86 @@
   </section>
   <mat-paginator [pageSizeOptions]="[5, 10,20]" showFirstLastButtons>
   </mat-paginator>
-</div>
+</div> -->
+
+<mat-card class="card" appearance="outlined">
+  <mat-card-header>
+
+  </mat-card-header>
+  <mat-card-content>
+    <div class="table-container">
+
+      <section tabindex="0">
+        <section>
+          <div>
+            <div>
+
+              @for(key of mobilePostKey; track key) {
+
+              <button matButton="outlined" extended class="filter-option-button" (click)="toggleColumn(key)"
+                [class.selected]="displayedColumns.includes(key)">
+                {{ 'MOBILE_POST.FIELDS.' + key | translate }}
+                <mat-icon>{{ displayedColumns.includes(key) ? 'remove' : 'add' }}</mat-icon> </button>
+              }
+
+            </div>
+          </div>
+        </section>
+
+        @if(dataSource && dataSource.ready) {
+        <table mat-table [dataSource]="dataSource">
+
+          @for(key of mobilePostKey; track key) {
+
+
+          <ng-container matColumnDef="{{key}}">
+            <th mat-header-cell *matHeaderCellDef [ngClass]="{
+              'mat-header-cell-s': smallDisplayColumns.includes(key),
+              'mat-header-cell-m': mediumDisplayColumns.includes(key),
+              'mat-header-cell-l': largeDisplayColumns.includes(key)
+            }">
+              {{ 'MOBILE_POST.FIELDS.' + key | translate }}
+            </th>
+            <td mat-cell *matCellDef="let element" [ngClass]="{
+              'mat-cell-s': smallDisplayColumns.includes(key),
+              'mat-cell-m': mediumDisplayColumns.includes(key),
+              'mat-cell-l': largeDisplayColumns.includes(key)
+            }"> {{element[key]}}
+            </td>
+          </ng-container>
+          }
+
+          <ng-container matColumnDef="action" stickyEnd="true">
+            <th mat-header-cell *matHeaderCellDef aria-label="row actions">&nbsp;</th>
+            <td mat-cell *matCellDef="let element">
+              <button matIconButton [matMenuTriggerFor]="menu">
+                <mat-icon>more_vert</mat-icon>
+              </button>
+              <mat-menu #menu="matMenu">
+                <button mat-menu-item>
+                  <mat-icon>edit</mat-icon>
+                  <span>{{ 'BUTTON.EDIT' | translate }}</span>
+                </button>
+                <button mat-menu-item>
+                  <mat-icon>delete</mat-icon>
+                  <span>{{ 'BUTTON.DELETE' | translate }}</span>
+                </button>
+              </mat-menu>
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="displayedColumns" sticky="true"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+        </table>
+
+        }
+
+
+      </section>
+      <mat-paginator [pageSizeOptions]="[5, 7,10,20]" [pageSize]="7" showFirstLastButtons>
+      </mat-paginator>
+    </div>
+
+  </mat-card-content>
+
+</mat-card>

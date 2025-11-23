@@ -23,17 +23,6 @@
   margin-right: 8px;
   min-width: 120px;
 }
-.advSearch-input {
-  flex: 1;
-}
-
-.example-section {
-  margin: 12px 0;
-}
-
-.example-margin {
-  margin: 0 12px;
-}
 
 
 .filter-option-button {
@@ -46,14 +35,24 @@
 .filter-option-button-row{
   width: 100%;
   max-width: 800px;
+  margin-top: 5px;
 }
 
 .expand-button-container {
   display: flex;
-  justify-content: center; /* center horizontally */
-  margin-top: 8px;         /* add spacing above */
+  justify-content: center; 
+  margin-top: 8px;         
 }
 
 .expand-button-container button {
   display: inline-flex;
+}
+
+.advSearch-input-text {
+  width: 50% !important;
+
+}
+
+#input-text-keyword{
+  max-width: 90% !important;
 }

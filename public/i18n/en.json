@@ -10,10 +10,10 @@
       "addressSC": "Address (Simplified Chinese)",
       "nameTC": "Name (Traditional Chinese)",
       "districtTC": "District (Traditional Chinese)",
-      "nameEN": "Name (English)",
-      "districtEN": "District (English)",
-      "locationEN": "Location (English)",
-      "addressEN": "Address (English)",
+      "nameEN": "Name",
+      "districtEN": "District",
+      "locationEN": "Location",
+      "addressEN": "Address",
       "seq": "Sequence",
       "dayOfWeekCode": "Day of Week Code",
       "latitude": "Latitude",
@@ -65,5 +65,10 @@
       "MAX": "Maximum value is {{max}}",
       "PATTERN": "Invalid format"
     }
+  },
+  "BUTTON":{
+    "EDIT":"Edit",
+    "DELETE":"Delete",
+    "CREATE":"Create"
   }
 }

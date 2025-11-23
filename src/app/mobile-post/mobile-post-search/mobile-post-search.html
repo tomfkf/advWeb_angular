@@ -3,7 +3,7 @@
     <form [formGroup]="form" class="ui form error">
         <div class="form-container">
             <div class="ui action input field-row">
-                <input type="text" matInput formControlName="keyword" [matAutocomplete]="autoMobileCode">
+                <input type="text" matInput formControlName="keyword" [matAutocomplete]="autoMobileCode" id="input-text-keyword">
                 <mat-autocomplete #autoMobileCode="matAutocomplete">
                     @for (option of filteredOptions['keyword'] | async; track option) {
                     <mat-option [value]="option">{{option}}</mat-option>
@@ -24,7 +24,7 @@
                     @switch (key.type) {
                     @case ('text'){
 
-                    <input type="text" formControlName="{{key.field}}" [matAutocomplete]="auto">
+                    <input type="text" class="advSearch-input-text" formControlName="{{key.field}}" [matAutocomplete]="auto">
 
                         <mat-autocomplete #auto="matAutocomplete">
                             @for (option of filteredOptions[key.field] | async; track option) {
@@ -110,7 +110,4 @@
 
         </div>
     </form>
-    {{form.value | json}}
-
-
 </div>

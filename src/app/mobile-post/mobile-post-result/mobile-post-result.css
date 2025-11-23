@@ -1,12 +1,60 @@
   .table-container {
-  height: 700px;
-  width: 70%;
-  margin: auto;
-  overflow: auto;
-}
-.result-card{
+    height: 700px;
     width: 80%;
+    margin: auto;
+    overflow: auto;
+  }
 
-  max-width: 1000px;
-  margin-bottom: 8px;
+  .result-card {
+    width: 80%;
+    max-width: 1000px;
+    margin-bottom: 8px;
+  }
+
+  .filter-option-button {
+    font-size: 12px;
+    height: 28px;
+    margin-right: 10px;
+    margin-top: 10px
+  }
+
+  .card {
+    width: 100%;
+    margin: auto;
+    max-width: 1500px;
+    margin-bottom: 8px;
+    margin-top: 10px;
+  } 
+  .mat-button-toggle-group {
+  display: flex;
+  flex-wrap: wrap;  
 }
+.filter-option-button.selected {
+  background-color: #1976d2; 
+  color: white;             
+}
+
+.mat-header-cell-s, .mat-cell-s {
+  width: 20px ;        
+  max-width: 20px ;
+  min-width: 20px ;
+}
+
+.mat-header-cell-m{
+  width: 90px ;        
+  max-width: 90px ;
+  min-width: 90px ;
+}
+.mat-cell-m {
+  width: 50px ;        
+  max-width: 50px ;
+  min-width: 50px ;
+}
+
+.mat-header-cell-l, .mat-cell-l {
+  width: 150px ;        
+  max-width: 150px ;
+  min-width: 150px ;
+}
+
+
