@@ -15,28 +15,42 @@ import { MobilePost } from '../models/mobile-post';
 import { MobilePostResult } from '../mobile-post-result/mobile-post-result';
 import { MobilePostAction } from '../models/mobile-post-action-enum';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
-
+import { MatIconModule } from '@angular/material/icon';
 
 @Component({
   selector: 'app-mobile-post-create',
-  imports: [ReactiveFormsModule, CommonModule, FormsModule,
+  imports: [
+    ReactiveFormsModule,
+    CommonModule,
+    FormsModule,
     MatFormFieldModule,
     MatInputModule,
     MatAutocompleteModule,
     ReactiveFormsModule,
-    AsyncPipe, TranslatePipe],
+    AsyncPipe,
+    TranslatePipe,
+    MatIconModule,
+  ],
   templateUrl: './mobile-post-create.html',
   styleUrl: './mobile-post-create.css',
 })
-
-
 export class MobilePostCreate {
   form: FormGroup;
   filteredOptions: { [key: string]: Observable<Set<string>> } = {};
   initMobilePostOption: MobilePost[];
-
-  constructor(fb: FormBuilder, service: MobilePostService,@Inject(MAT_DIALOG_DATA) data: { action: MobilePostAction, id: string }) {
+  key = Object.keys(new MobilePost());
+  action: MobilePostAction;
+  disabledField: string[] = [];
+  hiddenField: string[] = [];
+  actionString: string;
+  id: number;
+  constructor(
+    fb: FormBuilder,
+    private service: MobilePostService,
+    @Inject(MAT_DIALOG_DATA) data: { action: MobilePostAction; id?: string }
+  ) {
     this.form = fb.group({
+      id: [null],
       mobileCode: ['', [Validators.maxLength(3)]],
       locationTC: ['', [Validators.maxLength(100)]],
       locationSC: ['', [Validators.maxLength(100)]],
@@ -58,11 +72,33 @@ export class MobilePostCreate {
       openHour: ['', [Validators.pattern(TimeFormat)]],
     });
 
-    if(data.id){
+    this.id = Number(data.id);
+
+    this.action = data.action;
+    this.actionString = MobilePostAction[this.action].toUpperCase();
+    switch (this.action) {
+      case MobilePostAction.delete:
+        this.disabledField = this.key;
+        break;
+      case MobilePostAction.edit:
+        this.disabledField = ['id'];
+        break;
+      case MobilePostAction.create:
+        this.disabledField = [];
+        this.hiddenField = ['id'];
+        break;
+    }
+    for (const key of this.key) {
+      if (this.disabledField.includes(key)) {
+        this.form.get(key)?.disable();
+      }
+    }
+    if (data.id) {
       service.getRecordById(Number(data.id)).subscribe((data: MobilePostQueryResult) => {
         const initMobilePost = data.items ? data.items[0] : undefined;
         if (initMobilePost) {
           this.form.patchValue({
+            id: initMobilePost.id || null,
             mobileCode: initMobilePost.mobileCode || '',
             locationTC: initMobilePost.locationTC || '',
             locationSC: initMobilePost.locationSC || '',
@@ -87,14 +123,14 @@ export class MobilePostCreate {
       });
     }
 
-
     const defaultValidators = [Validators.required];
 
-
-    Object.keys(this.form.controls).forEach(key => {
-
-    const control = this.form.get(key);
-    if (control) {
+    Object.keys(this.form.controls).forEach((key) => {
+      if (key === 'id') {
+        return;
+      }
+      const control = this.form.get(key);
+      if (control) {
         const existingValidators = control.validator ? [control.validator] : [];
         control.setValidators([...defaultValidators, ...existingValidators]);
         control.updateValueAndValidity();
@@ -106,31 +142,52 @@ export class MobilePostCreate {
     service.getAllRecords().subscribe((data: MobilePostQueryResult) => {
       this.initMobilePostOption = data.items || [];
     });
-
   }
 
   private createFilterOption(field: keyof MobilePost): Observable<Set<string>> {
     return this.form.get(field)!.valueChanges.pipe(
       startWith(''),
-      map(value => this._filter(value || '', field))
+      map((value) => this._filter(value || '', field))
     );
   }
 
   private _filter(value: string, field: keyof MobilePost): Set<string> {
     const filterValue = value.toLowerCase();
-    return new Set(this.initMobilePostOption
-      .map(post => String(post[field] ?? ''))
-      .filter(option => option.toLowerCase().includes(filterValue)))
-      ;
+    return new Set(
+      this.initMobilePostOption
+        .map((post) => String(post[field] ?? ''))
+        .filter((option) => option.toLowerCase().includes(filterValue))
+    );
   }
 
   onSubmit() {
-    if (this.form.valid) {
-      const formData = this.form.value;
-      console.log('Form Data Submitted: ', formData);
+    console.log('Form Data Submitted:', this.form.valid);
 
+    const formData = this.form.value;
+
+    switch (this.action) {
+      case MobilePostAction.create:
+        if (this.form.valid) {
+          console.log('Creating Mobile Post:', formData);
+        }
+        break;
+      case MobilePostAction.edit:
+        if (this.form.valid) {
+          this.service.updateRecord(formData as MobilePost, this.id);
+        }
+        break;
+      case MobilePostAction.delete:
+        this.service.deleteRecordById(this.id);
+        break;
     }
   }
-
-
+  close() {}
+  check() {
+    for (const key in this.form.controls) {
+      const control = this.form.get(key);
+      if (control && control.invalid) {
+        console.log(`${key} is invalid`, control.errors);
+      }
+    }
+  }
 }

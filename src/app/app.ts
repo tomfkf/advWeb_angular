@@ -44,17 +44,19 @@ export class App {
     this.queryFilter = $event;
   }
 
-  mobilePostEventReceiver(event: { action: MobilePostAction, id: string }) {
+  mobilePostEventReceiver(event: { action: MobilePostAction, id?: string }) {
     console.log('Received event in App component:', event.action, event.id);
     console.log("App: deleteEvent received");
 
     this.dialogConfig.id = "deleteModal";
 
-    this.dialogConfig.height = "500px";
 
-    this.dialogConfig.width = "650px";
     this.dialogConfig.data = event;
 
+    this.dialogConfig.height = "90%";
+
+    this.dialogConfig.width = "90%";
+    
     this.actionModalDialogRef = this.matDialog.open(MobilePostCreate, this.dialogConfig);
   }
 }

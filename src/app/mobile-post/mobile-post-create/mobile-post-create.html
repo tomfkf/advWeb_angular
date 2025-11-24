@@ -1,4 +1,4 @@
-<div class="ui raised segment">
+<!-- <div class="ui raised segment">
     <div>{{ 'MOBILE_POST.TITLE' | translate }}</div>
     <form [formGroup]="form" class="ui form error">
         <div class="example-container">
@@ -112,4 +112,42 @@
         {{form.value | json}}
         {{form.status | json}}
     </form>
+</div>
+
+
+ -->
+
+
+<div class="ui raised segment form-container">
+    <form [formGroup]="form" class="ui form error" (ngSubmit)="onSubmit()">
+
+        <div class="ui header">{{ 'MOBILE_POST.TITLE.'+actionString| translate }}</div>
+        <div class="form-content">
+
+            @for(key of key; track key) {
+            @if(!hiddenField.includes(key)) {
+            <div class="inline field">
+                <label class="advSearch-field">{{ 'MOBILE_POST.FIELDS.' + key | translate}}</label>
+
+
+                <input type="text" class="advSearch-input-text" formControlName="{{key}}" [matAutocomplete]="auto">
+
+                <mat-autocomplete #auto="matAutocomplete">
+                    @for (option of filteredOptions[key] | async; track option) {
+                    <mat-option [value]="option">{{option}}</mat-option>
+                    }
+                </mat-autocomplete>
+            </div>
+            }
+
+            }
+            <button (click)="check()"> Check Validity </button>
+        </div>
+        <div class="form-actions-row">
+            <button class="ui button submit-button" [disabled]="form.invalid" type="submit">
+                {{ 'BUTTON.' + actionString | translate }}
+            </button>
+        </div>
+    </form>
+
 </div>

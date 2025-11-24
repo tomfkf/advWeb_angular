@@ -4,13 +4,6 @@
     margin: auto;
     overflow: auto;
   }
-
-  .result-card {
-    width: 80%;
-    max-width: 1000px;
-    margin-bottom: 8px;
-  }
-
   .filter-option-button {
     font-size: 12px;
     height: 28px;
@@ -19,9 +12,8 @@
   }
 
   .card {
-    width: 100%;
+    width: 80%;
     margin: auto;
-    max-width: 1500px;
     margin-bottom: 8px;
     margin-top: 10px;
   } 

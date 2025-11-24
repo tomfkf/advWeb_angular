@@ -25,6 +25,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatButtonModule } from '@angular/material/button';
 import { MatChipsModule } from '@angular/material/chips';
+import { MobilePostAction } from '../models/mobile-post-action-enum';
 
 @Component({
   selector: 'app-mobile-post-search',
@@ -66,6 +67,7 @@ export class MobilePostSearch {
   filteredOptions: { [key: string]: Observable<string[]> } = {};
   currentLanguage = 'EN';
   expandedFields: { [field: string]: boolean } = {};
+  @Output() mobilePostEvent = new EventEmitter<{ action: MobilePostAction, id?: string }>(); 
 
   @ViewChild('advSearchContainer') advSearchContainer!: ElementRef;
   @ViewChild('advSearchButton') advSearchButton!: ElementRef;
@@ -213,4 +215,7 @@ export class MobilePostSearch {
   toggleExpand(field: string) {
     this.expandedFields[field] = !this.expandedFields[field];
   }
+    createMobilePostDialog() {
+      this.mobilePostEvent.emit({ action : MobilePostAction.create});
+    }
 }

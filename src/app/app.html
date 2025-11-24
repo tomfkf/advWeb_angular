@@ -9,5 +9,5 @@
 
         </button>
     </div>
-<app-mobile-post-search (queryFilter)="queryFilterReceiver($event)"></app-mobile-post-search>
+<app-mobile-post-search (queryFilter)="queryFilterReceiver($event)" (mobilePostEvent)="mobilePostEventReceiver($event)"></app-mobile-post-search>
 <app-mobile-post-result [queryFilter]="queryFilter" (mobilePostEvent)="mobilePostEventReceiver($event)"></app-mobile-post-result>

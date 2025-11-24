@@ -64,11 +64,16 @@
       "MIN": "Minimum value is {{min}}",
       "MAX": "Maximum value is {{max}}",
       "PATTERN": "Invalid format"
+    },
+    "TITLE": {
+      "EDIT": "Edit Mobile Post",
+      "CREATE": "Create Mobile Post",
+      "DELETE": "Delete Mobile Post"
     }
   },
-  "BUTTON":{
-    "EDIT":"Edit",
-    "DELETE":"Delete",
-    "CREATE":"Create"
+  "BUTTON": {
+    "EDIT": "Edit",
+    "DELETE": "Delete",
+    "CREATE": "Create"
   }
 }
