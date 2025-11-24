@@ -3,20 +3,26 @@
     <form [formGroup]="form" class="ui form error">
         <div class="form-container">
             <div class="ui action input field-row">
-                <input type="text" matInput formControlName="keyword" [matAutocomplete]="autoMobileCode" id="input-text-keyword">
+                <input type="text" matInput formControlName="keyword" [matAutocomplete]="autoMobileCode"
+                    id="input-text-keyword">
                 <mat-autocomplete #autoMobileCode="matAutocomplete">
                     @for (option of filteredOptions['keyword'] | async; track option) {
                     <mat-option [value]="option">{{option}}</mat-option>
                     }
                 </mat-autocomplete>
-                <button class="ui icon button" (click)="switchAdvSearch()">
-                    <i class="sliders horizontal icon"></i>
-                </button>
+                <div #advSearchButton>
+                    <button class="ui icon button" (click)="switchAdvSearch()">
+                        <i class="sliders horizontal icon"></i>
+                    </button>
+                </div>
+                <div>
                 <button class="ui icon button" (click)="onSubmit()">
                     <i class="search icon"></i>
                 </button>
+                </div>
             </div>
-            <div class="ui segment field-row advSearch" [style.display]="openAdvancedSearch ? 'block' : 'none'">
+            <div class="ui segment field-row advSearch" #advSearchContainer
+                [style.display]="openAdvancedSearch ? 'block' : 'none'">
                 @for(key of advQueryKey ;track key) {
                 @if(key.type && key.type == 'text' || key.type == 'timeRange' || key.type == 'array') {
                 <div class="inline field">
@@ -24,13 +30,14 @@
                     @switch (key.type) {
                     @case ('text'){
 
-                    <input type="text" class="advSearch-input-text" formControlName="{{key.field}}" [matAutocomplete]="auto">
+                    <input type="text" class="advSearch-input-text" formControlName="{{key.field}}"
+                        [matAutocomplete]="auto">
 
-                        <mat-autocomplete #auto="matAutocomplete">
-                            @for (option of filteredOptions[key.field] | async; track option) {
-                            <mat-option [value]="option">{{option}}</mat-option>
-                            }
-                        </mat-autocomplete>
+                    <mat-autocomplete #auto="matAutocomplete">
+                        @for (option of filteredOptions[key.field] | async; track option) {
+                        <mat-option [value]="option">{{option}}</mat-option>
+                        }
+                    </mat-autocomplete>
                     }
                     @case ('timeRange'){
 

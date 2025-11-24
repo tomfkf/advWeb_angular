@@ -98,11 +98,11 @@
                 <mat-icon>more_vert</mat-icon>
               </button>
               <mat-menu #menu="matMenu">
-                <button mat-menu-item>
+                <button mat-menu-item (click)="actionHandler(MobilePostAction.edit, element.id)">
                   <mat-icon>edit</mat-icon>
                   <span>{{ 'BUTTON.EDIT' | translate }}</span>
                 </button>
-                <button mat-menu-item>
+                <button mat-menu-item (click)="actionHandler(MobilePostAction.delete, element.id)">
                   <mat-icon>delete</mat-icon>
                   <span>{{ 'BUTTON.DELETE' | translate }}</span>
                 </button>

@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Inject, Input, OnInit } from '@angular/core';
 import { FormControl, FormsModule, ReactiveFormsModule, ValidatorFn } from '@angular/forms';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { AsyncPipe, CommonModule } from '@angular/common';
@@ -13,6 +13,8 @@ import { MobilePostService } from '../services/mobile-post';
 import { MobilePostQueryResult } from '../models/mobile-post-query-result';
 import { MobilePost } from '../models/mobile-post';
 import { MobilePostResult } from '../mobile-post-result/mobile-post-result';
+import { MobilePostAction } from '../models/mobile-post-action-enum';
+import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 
 
 @Component({
@@ -30,14 +32,10 @@ import { MobilePostResult } from '../mobile-post-result/mobile-post-result';
 
 export class MobilePostCreate {
   form: FormGroup;
-  @Input() isCreation = true;
   filteredOptions: { [key: string]: Observable<Set<string>> } = {};
   initMobilePostOption: MobilePost[];
-  test: MobilePostQueryResult = {};
 
-
-  constructor(fb: FormBuilder, service: MobilePostService) {
-    const defaultValidators = this.isCreation ? [Validators.required] : [];
+  constructor(fb: FormBuilder, service: MobilePostService,@Inject(MAT_DIALOG_DATA) data: { action: MobilePostAction, id: string }) {
     this.form = fb.group({
       mobileCode: ['', [Validators.maxLength(3)]],
       locationTC: ['', [Validators.maxLength(100)]],
@@ -60,6 +58,38 @@ export class MobilePostCreate {
       openHour: ['', [Validators.pattern(TimeFormat)]],
     });
 
+    if(data.id){
+      service.getRecordById(Number(data.id)).subscribe((data: MobilePostQueryResult) => {
+        const initMobilePost = data.items ? data.items[0] : undefined;
+        if (initMobilePost) {
+          this.form.patchValue({
+            mobileCode: initMobilePost.mobileCode || '',
+            locationTC: initMobilePost.locationTC || '',
+            locationSC: initMobilePost.locationSC || '',
+            addressTC: initMobilePost.addressTC || '',
+            nameSC: initMobilePost.nameSC || '',
+            districtSC: initMobilePost.districtSC || '',
+            addressSC: initMobilePost.addressSC || '',
+            nameTC: initMobilePost.nameTC || '',
+            districtTC: initMobilePost.districtTC || '',
+            nameEN: initMobilePost.nameEN || '',
+            districtEN: initMobilePost.districtEN || '',
+            locationEN: initMobilePost.locationEN || '',
+            addressEN: initMobilePost.addressEN || '',
+            seq: initMobilePost.seq || null,
+            dayOfWeekCode: initMobilePost.dayOfWeekCode || null,
+            latitude: initMobilePost.latitude || null,
+            longitude: initMobilePost.longitude || null,
+            closeHour: initMobilePost.closeHour || '',
+            openHour: initMobilePost.openHour || '',
+          });
+        }
+      });
+    }
+
+
+    const defaultValidators = [Validators.required];
+
 
     Object.keys(this.form.controls).forEach(key => {
 
@@ -74,7 +104,6 @@ export class MobilePostCreate {
 
     this.initMobilePostOption = [];
     service.getAllRecords().subscribe((data: MobilePostQueryResult) => {
-      this.test = data;
       this.initMobilePostOption = data.items || [];
     });
 
@@ -93,6 +122,14 @@ export class MobilePostCreate {
       .map(post => String(post[field] ?? ''))
       .filter(option => option.toLowerCase().includes(filterValue)))
       ;
+  }
+
+  onSubmit() {
+    if (this.form.valid) {
+      const formData = this.form.value;
+      console.log('Form Data Submitted: ', formData);
+
+    }
   }
 
 

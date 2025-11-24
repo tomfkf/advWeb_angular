@@ -1,4 +1,4 @@
-import { Component, ElementRef, EventEmitter, HostListener, Output } from '@angular/core';
+import { Component, ElementRef, EventEmitter, HostListener, Output, ViewChild } from '@angular/core';
 import {
   FormBuilder,
   FormGroup,
@@ -67,6 +67,8 @@ export class MobilePostSearch {
   currentLanguage = 'EN';
   expandedFields: { [field: string]: boolean } = {};
 
+  @ViewChild('advSearchContainer') advSearchContainer!: ElementRef;
+  @ViewChild('advSearchButton') advSearchButton!: ElementRef;
   constructor(fb: FormBuilder, service: MobilePostService, private eRef: ElementRef) {
     this.form = fb.group({
       keyword: ['', [Validators.maxLength(255)]],
@@ -102,12 +104,11 @@ export class MobilePostSearch {
 
   @HostListener('document:click', ['$event'])
   clickOutside(event: Event) {
-    if (this.openAdvancedSearch && !this.eRef.nativeElement.contains(event.target)) {
+    if (this.openAdvancedSearch && !this.advSearchContainer.nativeElement.contains(event.target) && !this.advSearchButton.nativeElement.contains(event.target)) {
       this.openAdvancedSearch = false;
     }
   }
   onSubmit() {
-    console.log('aaa');
     this.queryFilter.emit({ ...this.form.value });
   }
 

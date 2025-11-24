@@ -23,6 +23,11 @@ export class MobilePostService {
   getRecord(query: MobilePostQueryRequest): Observable<MobilePostQueryResult> {
     return this.http.get<MobilePostQueryResult>(`${this.apiUrl}`, { params: this.cleanUp(query) as any });
   }
+  getRecordById(id: number): Observable<MobilePostQueryResult> {
+    let query = new MobilePostQueryRequest();
+    query.id = [id];
+    return this.http.get<MobilePostQueryResult>(`${this.apiUrl}`, { params: this.cleanUp(query) as any });
+  }
 
 
   private cleanUp(object : any): any {

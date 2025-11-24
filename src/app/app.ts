@@ -12,6 +12,9 @@ import { MobilePostResult } from './mobile-post/mobile-post-result/mobile-post-r
 import { MobilePost } from './mobile-post/models/mobile-post';
 import { MobilePostQueryResult } from './mobile-post/models/mobile-post-query-result';
 import { MobilePostService } from './mobile-post/services/mobile-post';
+import { MobilePostAction } from './mobile-post/models/mobile-post-action-enum';
+import { MatDialog, MatDialogConfig, MatDialogRef } from '@angular/material/dialog';
+import { MobilePostCreate } from './mobile-post/mobile-post-create/mobile-post-create';
 
 @Component({
   selector: 'app-root',
@@ -24,8 +27,10 @@ export class App {
   private translate = inject(TranslateService);
   queryFilter!: MobilePostQueryRequest | null;
   initMobilePostOption: MobilePost[];
+  actionModalDialogRef: MatDialogRef<MobilePostCreate, any> | undefined;
+  dialogConfig = new MatDialogConfig();
 
-  constructor(service: MobilePostService) {
+  constructor(service: MobilePostService, private matDialog: MatDialog) {
     this.translate.addLangs(['en']);
     this.translate.setFallbackLang('en');
     this.translate.use('en');
@@ -37,5 +42,19 @@ export class App {
 
   queryFilterReceiver($event: MobilePostQueryRequest) {
     this.queryFilter = $event;
+  }
+
+  mobilePostEventReceiver(event: { action: MobilePostAction, id: string }) {
+    console.log('Received event in App component:', event.action, event.id);
+    console.log("App: deleteEvent received");
+
+    this.dialogConfig.id = "deleteModal";
+
+    this.dialogConfig.height = "500px";
+
+    this.dialogConfig.width = "650px";
+    this.dialogConfig.data = event;
+
+    this.actionModalDialogRef = this.matDialog.open(MobilePostCreate, this.dialogConfig);
   }
 }

@@ -1,9 +1,11 @@
 import {
   AfterViewInit,
   Component,
+  EventEmitter,
   Input,
   OnChanges,
   OnInit,
+  Output,
   SimpleChanges,
   ViewChild,
 } from '@angular/core';
@@ -25,6 +27,8 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatMenuModule } from '@angular/material/menu';
+import { MobilePostAction } from '../models/mobile-post-action-enum';
+
 
 @Component({
   selector: 'app-mobile-post-result',
@@ -53,6 +57,8 @@ MobilePostResult implements OnInit {
   smallDisplayColumns : string [];
   mediumDisplayColumns : string [];
   largeDisplayColumns : string [];
+  MobilePostAction = MobilePostAction;
+  @Output() mobilePostEvent = new EventEmitter<{ action: MobilePostAction, id: string }>(); 
 
   constructor(matDialog: MatDialog, private mobilePostService: MobilePostService) {
     this.matDialog = matDialog;
@@ -114,5 +120,9 @@ MobilePostResult implements OnInit {
     this.displayedColumns = [...this.displayedColumns, 'action'];
   }
 
+  actionHandler(action: MobilePostAction, id: string) {
+    console.log('Action:', MobilePostAction[action], 'ID:', id);  
+    this.mobilePostEvent.emit({ action, id });
+  }
   
 }

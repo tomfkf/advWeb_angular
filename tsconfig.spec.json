@@ -10,5 +10,5 @@
   },
   "include": [
     "src/**/*.ts"
-  ]
+, "src/app/mobile-post/models/mobile-post-action-enum.ts"  ]
 }
