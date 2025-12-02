@@ -120,83 +120,77 @@
 
 <div class="ui raised segment form-container">
 
-        <div class="form-content">
-            <div class="ui header">{{ 'MOBILE_POST.TITLE.'+actionString| translate }}</div>
+    <div class="form-content">
+        <div class="ui header">{{ 'MOBILE_POST.TITLE.'+actionString| translate }}</div>
 
-            <mat-stepper linear #stepper>
-                <mat-step [stepControl]="basicInfoForm" isOptional="true">
-                    <form [formGroup]="basicInfoForm">
-                        <ng-template matStepLabel>{{ 'FORM.STEPS.BASIC_INFO' | translate }}</ng-template>
+        <mat-stepper linear #stepper>
+            <mat-step [stepControl]="basicInfoForm" isOptional="true">
+                <form [formGroup]="basicInfoForm" class="ui form">
+                    <ng-template matStepLabel>{{ 'FORM.STEPS.BASIC_INFO' | translate }}</ng-template>
 
-                        @for(key of basicFormKey; track key) {
-                        @if(!hiddenField.includes(key)) {
-                        <div class="inline field">
-                            <label class="advSearch-field">{{ 'MOBILE_POST.FIELDS.' + key | translate}}</label>
-
-
-                            <input type="text" class="advSearch-input-text" formControlName="{{key}}"
-                                [matAutocomplete]="auto">
-
-                            <mat-autocomplete #auto="matAutocomplete">
-                                @for (option of filteredOptions[key] | async; track option) {
-                                <mat-option [value]="option">{{option}}</mat-option>
-                                }
-                            </mat-autocomplete>
-                        </div>
-                        }
-
-                        }
-                        <div>
-                            <button class="ui button submit-button" matButton matStepperNext>Next</button>
-                        </div>
-                    </form>
-                </mat-step>
-                <mat-step [stepControl]="locationForm">
-                    <form [formGroup]="locationForm">
-                        <ng-template matStepLabel>{{ 'FORM.STEPS.LOCATION' | translate }}</ng-template>
-
-                        @for(key of locationFormKey; track key) {
-                        @if(!hiddenField.includes(key)) {
-                        <div class="inline field">
-                            <label class="advSearch-field">{{ 'MOBILE_POST.FIELDS.' + key | translate}}</label>
+                    @for(key of this.key.basicInfo; track key) {
+                    @if(!hiddenField.includes(key.field)) {
+                    <div class="inline field">
+                        <label class="advSearch-field">{{ 'MOBILE_POST.FIELDS.' + key.field| translate}}</label>
 
 
-                            <input type="text" class="advSearch-input-text" formControlName="{{key}}"
-                                [matAutocomplete]="auto">
+                        <input type="text" class="advSearch-input-text" formControlName="{{key.field}}"
+                            [matAutocomplete]="auto">
 
-                            <mat-autocomplete #auto="matAutocomplete">
-                                @for (option of filteredOptions[key] | async; track option) {
-                                <mat-option [value]="option">{{option}}</mat-option>
-                                }
-                            </mat-autocomplete>
-                        </div>
-                        }
-
-                        }
-                        <div>
-                            <button class="ui button back-button" matButton matStepperPrevious>Back</button>
-                        </div>
-                        <div>
-                            <button class="ui button submit-button" matButton matStepperNext>Next</button>
-                        </div>
-        
-                    </form>
-                </mat-step>
-                <mat-step>
-                    <ng-template matStepLabel>Done</ng-template>
-                    <p>You are now done.</p>
-                    <div>
-                        <button matButton matStepperPrevious>Back</button>
-                        <button matButton (click)="stepper.reset()">Reset</button>
+                        <mat-autocomplete #auto="matAutocomplete">
+                            @for (option of filteredOptions[key.field] | async; track option) {
+                            <mat-option [value]="option">{{option}}</mat-option>
+                            }
+                        </mat-autocomplete>
                     </div>
-                </mat-step>
-            </mat-stepper>
-        </div>
-        <!--<div class="form-actions-row">
-            <button class="ui button submit-button" [disabled]="form.invalid" type="submit">
-                {{ 'BUTTON.' + actionString | translate }}
-            </button>
-        </div>-->
+                    }
 
+                    }
+                    <div>
+                        <button class="ui button submit-button" matButton matStepperNext>Next</button>
+                    </div>
+                </form>
+            </mat-step>
+            <mat-step [stepControl]="locationForm">
+                <form [formGroup]="locationForm" class="ui form">
+                    <ng-template matStepLabel>{{ 'FORM.STEPS.LOCATION' | translate }}</ng-template>
+
+                    @for(key of locationFormKey; track key) {
+                    @if(!hiddenField.includes(key)) {
+                    <div class="inline field">
+                        <label class="advSearch-field">{{ 'MOBILE_POST.FIELDS.' + key | translate}}</label>
+
+
+                        <input type="text" class="advSearch-input-text" formControlName="{{key}}"
+                            [matAutocomplete]="auto">
+
+                        <mat-autocomplete #auto="matAutocomplete">
+                            @for (option of filteredOptions[key] | async; track option) {
+                            <mat-option [value]="option">{{option}}</mat-option>
+                            }
+                        </mat-autocomplete>
+                    </div>
+                    }
+
+                    }
+                    <div>
+                        <button class="ui button back-button" matButton matStepperPrevious>Back</button>
+                    </div>
+                    <div>
+                        <button class="ui button submit-button" matButton matStepperNext>Next</button>
+                    </div>
+
+                </form>
+            </mat-step>
+            <mat-step>
+                <ng-template matStepLabel>Done</ng-template>
+                <p>You are now done.</p>
+                <div>
+                    <button matButton matStepperPrevious>Back</button>
+                    <button matButton (click)="stepper.reset()">Reset</button>
+                </div>
+            </mat-step>
+        </mat-stepper>
+    </div>
 
 </div>

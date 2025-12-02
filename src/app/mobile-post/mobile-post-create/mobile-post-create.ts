@@ -194,7 +194,8 @@ export class MobilePostCreate {
     }
 
     const defaultValidators = [Validators.required];
-
+    this.setUpDefaultValidatorsAndFilterOption(this.basicInfoForm);
+    this.setUpDefaultValidatorsAndFilterOption(this.locationForm);
 
     this.initMobilePostOption = [];
     service.getAllRecords().subscribe((data: MobilePostQueryResult) => {
