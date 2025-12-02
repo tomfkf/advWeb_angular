@@ -4,9 +4,8 @@
   }
 
 .form-content{
-    height: 100%;
-    max-height: 100%; 
-    overflow-y: hidden; 
+    height: 90%;
+    max-height: 90%; 
 }
 
 .submit-button{
@@ -19,3 +18,6 @@
 .form-title-row{
     height : 25vh;
 }
+#map {
+    height: 300px;
+} 

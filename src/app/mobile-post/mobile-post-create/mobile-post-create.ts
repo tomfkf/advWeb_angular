@@ -1,4 +1,4 @@
-import { Component, Inject, Input, OnInit } from '@angular/core';
+import { AfterViewInit, Component, Inject, Input, OnInit } from '@angular/core';
 import { FormControl, FormsModule, ReactiveFormsModule, ValidatorFn } from '@angular/forms';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { AsyncPipe, CommonModule } from '@angular/common';
@@ -7,7 +7,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { Observable } from 'rxjs';
-import { map, startWith } from 'rxjs/operators';
+import { map, min, startWith } from 'rxjs/operators';
 import { TranslatePipe } from '@ngx-translate/core';
 import { MobilePostService } from '../services/mobile-post';
 import { MobilePostQueryResult } from '../models/mobile-post-query-result';
@@ -35,7 +35,7 @@ import { MatStepperModule } from '@angular/material/stepper';
   templateUrl: './mobile-post-create.html',
   styleUrl: './mobile-post-create.css',
 })
-export class MobilePostCreate {
+export class MobilePostCreate implements AfterViewInit {
   filteredOptions: { [key: string]: Observable<Set<string>> } = {};
   initMobilePostOption: MobilePost[];
   // key = Object.keys(new MobilePost());
@@ -47,35 +47,42 @@ export class MobilePostCreate {
 
   locationForm: FormGroup;
   basicInfoForm: FormGroup;
+  map!: L.Map;
+  L!: any;
+  inputPost?: MobilePost;
 
   key = {
     "basicInfo": [
       { field: 'id', type: 'number', validators: [] },
       {
         field: 'mobileCode',
-        type: 'string',
+        type: 'text',
         validators: [Validators.maxLength(3)]
 
       }, {
         field: 'seq',
         type: 'number',
-        validators: [Validators.max(100), Validators.min(1)]
+        validators: [Validators.max(100), Validators.min(1)],
+        max: 100,
+        min: 1
       }, {
         field: 'dayOfWeekCode',
         type: 'number',
-        validators: [Validators.max(5), Validators.min(1)]
+        validators: [Validators.max(5), Validators.min(1)],
+        max: 5,
+        min: 1
       }, {
         field: 'nameEN',
-        type: 'string',
+        type: 'text',
         validators: [Validators.maxLength(50)]
 
       }, {
         field: 'nameTC',
-        type: 'string',
+        type: 'text',
         validators: [Validators.maxLength(50)]
       }, {
         field: 'nameSC',
-        type: 'string',
+        type: 'text',
         validators: [Validators.maxLength(50)]
       }, {
         field: 'openHour',
@@ -88,40 +95,40 @@ export class MobilePostCreate {
       }],
     "location": [{
       field: 'locationTC',
-      type: 'string',
+      type: 'text',
       validators: [Validators.maxLength(100)]
     }, {
       field: 'locationSC',
-      type: 'string',
+      type: 'text',
       validators: [Validators.maxLength(100)]
 
     }, {
       field: 'locationEN',
-      type: 'string',
+      type: 'text',
       validators: [Validators.maxLength(100)]
     }, {
       field: 'districtEN',
-      type: 'string',
+      type: 'text',
       validators: [Validators.maxLength(50)]
     }, {
       field: 'districtTC',
-      type: 'string',
+      type: 'text',
       validators: [Validators.maxLength(50)]
     }, {
       field: 'districtSC',
-      type: 'string',
+      type: 'text',
       validators: [Validators.maxLength(50)]
     }, {
       field: 'addressEN',
-      type: 'string',
+      type: 'text',
       validators: [Validators.maxLength(255)]
     }, {
       field: 'addressTC',
-      type: 'string',
+      type: 'text',
       validators: [Validators.maxLength(255)]
     }, {
       field: 'addressSC',
-      type: 'string',
+      type: 'text',
       validators: [Validators.maxLength(255)]
     }, {
       field: 'latitude',
@@ -136,6 +143,7 @@ export class MobilePostCreate {
   }
   basicFormKey = this.key.basicInfo.map(f => f.field);
   locationFormKey = this.key.location.map(f => f.field);
+
 
   constructor(
     private fb: FormBuilder,
@@ -163,7 +171,7 @@ export class MobilePostCreate {
       case MobilePostAction.edit:
         this.disabledField = ['id'];
         break;
-      case MobilePostAction.create: ``
+      case MobilePostAction.create:
         this.disabledField = [];
         this.hiddenField = ['id'];
         break;
@@ -177,16 +185,16 @@ export class MobilePostCreate {
 
     if (data.id) {
       service.getRecordById(Number(data.id)).subscribe((data: MobilePostQueryResult) => {
-        const initMobilePost = data.items ? data.items[0] : undefined;
-        if (initMobilePost) {
+        this.inputPost = data.items ? data.items[0] : undefined;
+        if (this.inputPost) {
           for (const basicFormField of this.key.basicInfo) {
             this.basicInfoForm.patchValue({
-              [basicFormField.field]: initMobilePost[basicFormField.field as keyof MobilePost]
+              [basicFormField.field]: this.inputPost[basicFormField.field as keyof MobilePost]
             });
           }
           for (const locationFormField of this.key.location) {
             this.locationForm.patchValue({
-              [locationFormField.field]: initMobilePost[locationFormField.field as keyof MobilePost]
+              [locationFormField.field]: this.inputPost[locationFormField.field as keyof MobilePost]
             });
           }
         }
@@ -201,6 +209,38 @@ export class MobilePostCreate {
     service.getAllRecords().subscribe((data: MobilePostQueryResult) => {
       this.initMobilePostOption = data.items || [];
     });
+  }
+
+  async ngAfterViewInit() {
+    this.L = await import('leaflet');
+
+    if (this.inputPost) {
+      const lat = this.inputPost.latitude || 22.3193;
+      const lng = this.inputPost.longitude || 114.1694;
+      this.map = this.L.map('map').setView([lat, lng], 13);
+      const inputMarker = this.L.marker([lat, lng]).addTo(this.map);
+      inputMarker.bindPopup('Current Location').openPopup();
+
+    } else {
+      this.map = this.L.map('map').setView([22.3193, 114.1694], 13);
+    }
+
+    this.L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(this.map);
+
+    if (this.initMobilePostOption) {
+      this.initMobilePostOption.forEach((post) => {
+        const marker = this.L.marker([post.latitude, post.longitude]).addTo(this.map);
+        if(this.inputPost && post.id === this.inputPost.id){
+          marker.bindPopup(`<b>Current<br/> ${post.nameEN} ${post.openHour} - ${post.closeHour}</b><br/>${post.addressEN}`).openPopup();
+        }else 
+        {
+          marker.bindPopup(`<b>${post.nameEN} ${post.openHour} - ${post.closeHour}</b><br/>${post.addressEN}`);
+
+        }
+      });
+    }
   }
 
 
