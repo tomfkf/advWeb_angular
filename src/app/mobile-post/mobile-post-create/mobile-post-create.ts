@@ -16,6 +16,7 @@ import { MobilePostResult } from '../mobile-post-result/mobile-post-result';
 import { MobilePostAction } from '../models/mobile-post-action-enum';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
+import { MatStepperModule } from '@angular/material/stepper';
 
 @Component({
   selector: 'app-mobile-post-create',
@@ -29,48 +30,124 @@ import { MatIconModule } from '@angular/material/icon';
     ReactiveFormsModule,
     AsyncPipe,
     TranslatePipe,
-    MatIconModule,
+    MatIconModule, MatStepperModule
   ],
   templateUrl: './mobile-post-create.html',
   styleUrl: './mobile-post-create.css',
 })
 export class MobilePostCreate {
-  form: FormGroup;
   filteredOptions: { [key: string]: Observable<Set<string>> } = {};
   initMobilePostOption: MobilePost[];
-  key = Object.keys(new MobilePost());
+  // key = Object.keys(new MobilePost());
   action: MobilePostAction;
   disabledField: string[] = [];
   hiddenField: string[] = [];
   actionString: string;
   id: number;
+
+  locationForm: FormGroup;
+  basicInfoForm: FormGroup;
+
+  key = {
+    "basicInfo": [
+      { field: 'id', type: 'number', validators: [] },
+      {
+        field: 'mobileCode',
+        type: 'string',
+        validators: [Validators.maxLength(3)]
+
+      }, {
+        field: 'seq',
+        type: 'number',
+        validators: [Validators.max(100), Validators.min(1)]
+      }, {
+        field: 'dayOfWeekCode',
+        type: 'number',
+        validators: [Validators.max(5), Validators.min(1)]
+      }, {
+        field: 'nameEN',
+        type: 'string',
+        validators: [Validators.maxLength(50)]
+
+      }, {
+        field: 'nameTC',
+        type: 'string',
+        validators: [Validators.maxLength(50)]
+      }, {
+        field: 'nameSC',
+        type: 'string',
+        validators: [Validators.maxLength(50)]
+      }, {
+        field: 'openHour',
+        type: 'time',
+        validators: [Validators.pattern(TimeFormat)]
+      }, {
+        field: 'closeHour',
+        type: 'time',
+        validators: [Validators.pattern(TimeFormat)]
+      }],
+    "location": [{
+      field: 'locationTC',
+      type: 'string',
+      validators: [Validators.maxLength(100)]
+    }, {
+      field: 'locationSC',
+      type: 'string',
+      validators: [Validators.maxLength(100)]
+
+    }, {
+      field: 'locationEN',
+      type: 'string',
+      validators: [Validators.maxLength(100)]
+    }, {
+      field: 'districtEN',
+      type: 'string',
+      validators: [Validators.maxLength(50)]
+    }, {
+      field: 'districtTC',
+      type: 'string',
+      validators: [Validators.maxLength(50)]
+    }, {
+      field: 'districtSC',
+      type: 'string',
+      validators: [Validators.maxLength(50)]
+    }, {
+      field: 'addressEN',
+      type: 'string',
+      validators: [Validators.maxLength(255)]
+    }, {
+      field: 'addressTC',
+      type: 'string',
+      validators: [Validators.maxLength(255)]
+    }, {
+      field: 'addressSC',
+      type: 'string',
+      validators: [Validators.maxLength(255)]
+    }, {
+      field: 'latitude',
+      type: 'number',
+      validators: [Validators.max(90), Validators.min(-90)]
+    }, {
+      field: 'longitude',
+      type: 'number',
+      validators: [Validators.max(180), Validators.min(-180)]
+    }
+    ]
+  }
+  basicFormKey = this.key.basicInfo.map(f => f.field);
+  locationFormKey = this.key.location.map(f => f.field);
+
   constructor(
-    fb: FormBuilder,
+    private fb: FormBuilder,
     private service: MobilePostService,
     @Inject(MAT_DIALOG_DATA) data: { action: MobilePostAction; id?: string }
   ) {
-    this.form = fb.group({
-      id: [null],
-      mobileCode: ['', [Validators.maxLength(3)]],
-      locationTC: ['', [Validators.maxLength(100)]],
-      locationSC: ['', [Validators.maxLength(100)]],
-      addressTC: ['', [Validators.maxLength(255)]],
-      nameSC: ['', [Validators.maxLength(50)]],
-      districtSC: ['', [Validators.maxLength(50)]],
-      addressSC: ['', [Validators.maxLength(255)]],
-      nameTC: ['', [Validators.maxLength(50)]],
-      districtTC: ['', [Validators.maxLength(50)]],
-      nameEN: ['', [Validators.maxLength(50)]],
-      districtEN: ['', [Validators.maxLength(50)]],
-      locationEN: ['Sham Tseng', [Validators.maxLength(100)]],
-      addressEN: ['', [Validators.maxLength(255)]],
-      seq: [null, [Validators.max(100), Validators.min(1)]],
-      dayOfWeekCode: [null, [Validators.max(5), Validators.min(1)]],
-      latitude: [null, [Validators.max(90), Validators.min(-90)]],
-      longitude: [null, [Validators.max(180), Validators.min(-180)]],
-      closeHour: ['', [Validators.pattern(TimeFormat)]],
-      openHour: ['', [Validators.pattern(TimeFormat)]],
-    });
+
+
+    this.basicInfoForm = this.createGroup(this.key.basicInfo);
+
+    this.locationForm = this.createGroup(this.key.location);
+
 
     this.id = Number(data.id);
 
@@ -78,65 +155,46 @@ export class MobilePostCreate {
     this.actionString = MobilePostAction[this.action].toUpperCase();
     switch (this.action) {
       case MobilePostAction.delete:
-        this.disabledField = this.key;
+        this.disabledField = [
+          ...this.key.basicInfo.map(f => f.field),
+          ...this.key.location.map(f => f.field)
+        ];
         break;
       case MobilePostAction.edit:
         this.disabledField = ['id'];
         break;
-      case MobilePostAction.create:
+      case MobilePostAction.create: ``
         this.disabledField = [];
         this.hiddenField = ['id'];
         break;
     }
-    for (const key of this.key) {
+    for (const key of [...this.key.basicInfo.map(f => f.field), ...this.key.location.map(f => f.field)]) {
       if (this.disabledField.includes(key)) {
-        this.form.get(key)?.disable();
+        this.basicInfoForm.get(key)?.disable();
+        this.locationForm.get(key)?.disable();
       }
     }
+
     if (data.id) {
       service.getRecordById(Number(data.id)).subscribe((data: MobilePostQueryResult) => {
         const initMobilePost = data.items ? data.items[0] : undefined;
         if (initMobilePost) {
-          this.form.patchValue({
-            id: initMobilePost.id || null,
-            mobileCode: initMobilePost.mobileCode || '',
-            locationTC: initMobilePost.locationTC || '',
-            locationSC: initMobilePost.locationSC || '',
-            addressTC: initMobilePost.addressTC || '',
-            nameSC: initMobilePost.nameSC || '',
-            districtSC: initMobilePost.districtSC || '',
-            addressSC: initMobilePost.addressSC || '',
-            nameTC: initMobilePost.nameTC || '',
-            districtTC: initMobilePost.districtTC || '',
-            nameEN: initMobilePost.nameEN || '',
-            districtEN: initMobilePost.districtEN || '',
-            locationEN: initMobilePost.locationEN || '',
-            addressEN: initMobilePost.addressEN || '',
-            seq: initMobilePost.seq || null,
-            dayOfWeekCode: initMobilePost.dayOfWeekCode || null,
-            latitude: initMobilePost.latitude || null,
-            longitude: initMobilePost.longitude || null,
-            closeHour: initMobilePost.closeHour || '',
-            openHour: initMobilePost.openHour || '',
-          });
+          for (const basicFormField of this.key.basicInfo) {
+            this.basicInfoForm.patchValue({
+              [basicFormField.field]: initMobilePost[basicFormField.field as keyof MobilePost]
+            });
+          }
+          for (const locationFormField of this.key.location) {
+            this.locationForm.patchValue({
+              [locationFormField.field]: initMobilePost[locationFormField.field as keyof MobilePost]
+            });
+          }
         }
       });
     }
 
     const defaultValidators = [Validators.required];
 
-    Object.keys(this.form.controls).forEach((key) => {
-      if (key === 'id') {
-        return;
-      }
-      const control = this.form.get(key);
-      if (control) {
-        const existingValidators = control.validator ? [control.validator] : [];
-        control.setValidators([...defaultValidators, ...existingValidators]);
-        control.updateValueAndValidity();
-        this.filteredOptions[key] = this.createFilterOption(key as keyof MobilePost);
-      }
-    });
 
     this.initMobilePostOption = [];
     service.getAllRecords().subscribe((data: MobilePostQueryResult) => {
@@ -144,8 +202,35 @@ export class MobilePostCreate {
     });
   }
 
-  private createFilterOption(field: keyof MobilePost): Observable<Set<string>> {
-    return this.form.get(field)!.valueChanges.pipe(
+
+  createGroup(fields: any[]): FormGroup {
+    const group: any = {};
+    fields.forEach(f => {
+      group[f.field] = new FormControl('', f.validators || []);
+    });
+    return this.fb.group(group);
+  }
+
+  setUpDefaultValidatorsAndFilterOption(formGroup: FormGroup) {
+    const defaultValidators = [Validators.required];
+    Object.keys(formGroup.controls).forEach((key) => {
+      if (key === 'id') {
+        return;
+      }
+      const control = formGroup.get(key);
+      if (control) {
+        const existingValidators = control.validator ? [control.validator] : [];
+        control.setValidators([...defaultValidators, ...existingValidators]);
+        control.updateValueAndValidity();
+        this.filteredOptions[key] = this.createFilterOption(key as keyof MobilePost, formGroup);
+      }
+    });
+
+  }
+
+
+  private createFilterOption(field: keyof MobilePost, formGroup: FormGroup): Observable<Set<string>> {
+    return formGroup.get(field)!.valueChanges.pipe(
       startWith(''),
       map((value) => this._filter(value || '', field))
     );
@@ -161,18 +246,21 @@ export class MobilePostCreate {
   }
 
   onSubmit() {
-    console.log('Form Data Submitted:', this.form.valid);
 
-    const formData = this.form.value;
+    const formData = {
+      ...this.basicInfoForm.value,
+      ...this.locationForm.value
+    }
 
     switch (this.action) {
       case MobilePostAction.create:
-        if (this.form.valid) {
+        if (this.basicInfoForm.valid && this.locationForm.valid) {
           console.log('Creating Mobile Post:', formData);
         }
+        this.service.createRecord(formData as MobilePost);
         break;
       case MobilePostAction.edit:
-        if (this.form.valid) {
+        if (this.basicInfoForm.valid && this.locationForm.valid) {
           this.service.updateRecord(formData as MobilePost, this.id);
         }
         break;
@@ -181,13 +269,7 @@ export class MobilePostCreate {
         break;
     }
   }
-  close() {}
-  check() {
-    for (const key in this.form.controls) {
-      const control = this.form.get(key);
-      if (control && control.invalid) {
-        console.log(`${key} is invalid`, control.errors);
-      }
-    }
-  }
+
+  close() { }
+
 }

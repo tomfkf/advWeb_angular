@@ -68,14 +68,13 @@
           </div>
         </section>
 
-        @if(dataSource && dataSource.ready) {
-        <table mat-table [dataSource]="dataSource">
+        <table mat-table [dataSource]="dataSource" matSort>
 
           @for(key of mobilePostKey; track key) {
 
 
           <ng-container matColumnDef="{{key}}">
-            <th mat-header-cell *matHeaderCellDef [ngClass]="{
+            <th mat-header-cell *matHeaderCellDef [mat-sort-header]="key" [ngClass]="{
               'mat-header-cell-s': smallDisplayColumns.includes(key),
               'mat-header-cell-m': mediumDisplayColumns.includes(key),
               'mat-header-cell-l': largeDisplayColumns.includes(key)
@@ -114,7 +113,6 @@
           <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
         </table>
 
-        }
 
 
       </section>

@@ -60,8 +60,9 @@ export class MobilePostSearch {
     { field: 'dayOfWeekCode', type: 'array' },
     // { "field": "latitude" , type: "number" },
     // { "field": "longitude" , type: "number" },
+        { field: 'openHour', type: 'timeRange' },
+
     { field: 'closeHour', type: 'timeRange' },
-    { field: 'openHour', type: 'timeRange' },
   ];
 
   filteredOptions: { [key: string]: Observable<string[]> } = {};

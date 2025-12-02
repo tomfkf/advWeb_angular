@@ -12,6 +12,10 @@ export class MobilePostDataSource extends DataSource<MobilePost> {
   private mobilePostSubject = new BehaviorSubject<MobilePost[]>([]);
   ready: boolean = false;
 
+  queryFilter: MobilePostQueryRequest | null = null;
+  paginator: MatPaginator = new MatPaginator(new HttpClient({} as any), {});
+  sort: MatSort = new MatSort();
+
   override connect(collectionViewer: CollectionViewer): Observable<readonly MobilePost[]> {
     return this.mobilePostSubject.asObservable();
   }
@@ -19,20 +23,44 @@ export class MobilePostDataSource extends DataSource<MobilePost> {
     this.mobilePostSubject.complete();
   }
 
-  constructor(
+ /* constructor(
     private readonly mobilePostService: MobilePostService,
     private queryFilter: MobilePostQueryRequest | null,
     private paginator: MatPaginator,
     private sort: MatSort
   ) {
     super();
-    this.paginator.page.subscribe(() => {console.log('Page changed'); this.updateDataFromServer();});
+    this.paginator.page.subscribe(() => { console.log('Page changed'); this.updateDataFromServer(); });
     this.updateDataFromServer();
     // this.paginator.page.subscribe(() => {console.log('Page changed'); this.dataSource.updateDataFromServer();});
-    // this.sort.sortChange.subscribe(() => {
-    //   this.paginator.pageIndex = 0;
-    //   this.dataSource.updateDataFromServer();
-    // });
+
+
+    if (this.sort) {
+      console.log('Sort initialized');
+      this.sort.sortChange.subscribe(() => {
+        this.paginator.pageIndex = 0;
+        this.updateDataFromServer();
+      });
+    } else {
+      console.log('Sort not initialized');
+    }
+  }*/
+
+  constructor(private readonly mobilePostService: MobilePostService) {
+    super();
+  }
+
+
+  setUp(queryFilter: MobilePostQueryRequest | null, paginator: MatPaginator, sort: MatSort): void {
+    this.queryFilter = queryFilter;
+    this.paginator = paginator;
+    this.sort = sort;
+    this.paginator.page.subscribe(() => { console.log('Page changed'); this.updateDataFromServer(); });
+    this.sort.sortChange.subscribe(() => {
+      this.paginator.pageIndex = 0;
+      this.updateDataFromServer();
+    });
+    this.updateDataFromServer();
   }
 
   updateDataFromServer(): void {
@@ -41,6 +69,10 @@ export class MobilePostDataSource extends DataSource<MobilePost> {
     let queryFilter = this.queryFilter == null ? new MobilePostQueryRequest() : { ...this.queryFilter };
     queryFilter.limit = this.paginator.pageSize;
     queryFilter.page = this.paginator.pageIndex + 1;
+    if (this.sort?.active && this.sort?.direction) {
+      queryFilter.orderBy = this.sort?.active;
+      queryFilter.order = this.sort?.direction.toUpperCase();
+    }
 
     // console.log(`paginator : ${this.sort.direction}`);
     this.mobilePostService.getRecord(queryFilter).subscribe((data) => {
@@ -50,7 +82,7 @@ export class MobilePostDataSource extends DataSource<MobilePost> {
     });
   }
 
-  setQueryFilter(queryFilter: MobilePostQueryRequest | null): void {  
+  setQueryFilter(queryFilter: MobilePostQueryRequest | null): void {
     this.queryFilter = queryFilter;
     this.paginator.pageIndex = 0;
   }

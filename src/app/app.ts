@@ -45,18 +45,16 @@ export class App {
   }
 
   mobilePostEventReceiver(event: { action: MobilePostAction, id?: string }) {
-    console.log('Received event in App component:', event.action, event.id);
-    console.log("App: deleteEvent received");
 
-    this.dialogConfig.id = "deleteModal";
+    this.dialogConfig.id = "actionModal";
 
 
     this.dialogConfig.data = event;
 
-    this.dialogConfig.height = "90%";
+    this.dialogConfig.height = "auto";
 
-    this.dialogConfig.width = "90%";
-    
+    this.dialogConfig.width = "50vw";
+    this.dialogConfig.maxWidth = '50vw';
     this.actionModalDialogRef = this.matDialog.open(MobilePostCreate, this.dialogConfig);
   }
 }

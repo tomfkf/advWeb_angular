@@ -21,7 +21,7 @@ import { MatDialogRef, MatDialog, MatDialogConfig } from '@angular/material/dial
 import { MobilePostDataSource } from '../dataSource/mobile-post-data-source';
 import { MobilePostService } from '../services/mobile-post';
 import { MobilePostQueryRequest } from '../models/mobile-post-query-request';
-import { MatSort } from '@angular/material/sort';
+import { MatSort, MatSortModule } from '@angular/material/sort';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatChipsModule } from '@angular/material/chips';
@@ -32,16 +32,16 @@ import { MobilePostAction } from '../models/mobile-post-action-enum';
 
 @Component({
   selector: 'app-mobile-post-result',
-  imports: [MatTableModule, MatPaginatorModule, CommonModule, TranslatePipe, MatIconModule,MatCardModule,MatButtonModule,MatCardModule, MatChipsModule,MatButtonToggleModule,MatMenuModule],
+  imports: [MatTableModule, MatPaginatorModule, CommonModule, TranslatePipe, MatIconModule, MatCardModule, MatButtonModule, MatCardModule, MatChipsModule, MatButtonToggleModule, MatMenuModule, MatSortModule],
   templateUrl: './mobile-post-result.html',
   styleUrl: './mobile-post-result.css',
 })
-export class 
-MobilePostResult implements OnInit {
+export class
+  MobilePostResult implements OnInit {
   // @Input() result: MobilePostQueryResult = {};
   // dataSource = new MatTableDataSource<MobilePost>(this.result?.items || []);
   mobilePostKey: string[] = Object.keys(new MobilePost());
-  displayedColumns: string[] ;
+  displayedColumns: string[];
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   createModalDialogRef: MatDialogRef<MobilePostCreate, any> | undefined;
   matDialog: MatDialog;
@@ -54,11 +54,11 @@ MobilePostResult implements OnInit {
 
   lang: string = 'EN';
 
-  smallDisplayColumns : string [];
-  mediumDisplayColumns : string [];
-  largeDisplayColumns : string [];
+  smallDisplayColumns: string[];
+  mediumDisplayColumns: string[];
+  largeDisplayColumns: string[];
   MobilePostAction = MobilePostAction;
-  @Output() mobilePostEvent = new EventEmitter<{ action: MobilePostAction, id: string }>(); 
+  @Output() mobilePostEvent = new EventEmitter<{ action: MobilePostAction, id: string }>();
 
   constructor(matDialog: MatDialog, private mobilePostService: MobilePostService) {
     this.matDialog = matDialog;
@@ -66,10 +66,13 @@ MobilePostResult implements OnInit {
     this.smallDisplayColumns = ['id']
     this.largeDisplayColumns = this.mobilePostKey.filter(column => column.toLocaleLowerCase().includes('address'));
     this.mediumDisplayColumns = this.mobilePostKey.filter(column => !this.smallDisplayColumns.includes(column) && !this.largeDisplayColumns.includes(column));
+    this.dataSource = new MobilePostDataSource(this.mobilePostService);
   }
 
   ngAfterViewInit(): void {
-    this.dataSource = new MobilePostDataSource(this.mobilePostService,this.queryFilter, this.paginator, this.sort);
+    // this.dataSource = new MobilePostDataSource(this.mobilePostService, this.queryFilter, this.paginator, this.sort);
+    console.log('Paginator and Sort initialized in ngAfterViewInit');
+    this.dataSource.setUp(this.queryFilter, this.paginator, this.sort);
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -91,15 +94,15 @@ MobilePostResult implements OnInit {
   }
 
   findDisplayColumnsByLang(lang: string): string[] {
-    let displayedColumns = this.mobilePostKey.filter(column => { 
+    let displayedColumns = this.mobilePostKey.filter(column => {
       if (column.endsWith(lang)) {
         return true;
       }
       let hasLang = false;
       this.langs.forEach(l => {
-          if (column.endsWith(l)) {
-              hasLang = true;
-          }
+        if (column.endsWith(l)) {
+          hasLang = true;
+        }
       });
       return !hasLang;
     });
@@ -113,7 +116,7 @@ MobilePostResult implements OnInit {
     // } else {
     //   this.displayedColumns.push(column);
     // }
-    this.displayedColumns =  this.mobilePostKey.filter(key => { 
+    this.displayedColumns = this.mobilePostKey.filter(key => {
       return column === key ? !this.displayedColumns.includes(column) : this.displayedColumns.includes(key);
     });
 
@@ -121,8 +124,11 @@ MobilePostResult implements OnInit {
   }
 
   actionHandler(action: MobilePostAction, id: string) {
-    console.log('Action:', MobilePostAction[action], 'ID:', id);  
+    console.log('Action:', MobilePostAction[action], 'ID:', id);
     this.mobilePostEvent.emit({ action, id });
   }
-  
+
+  sortData(event: any) {
+    console.log('Sort Event:', event);
+  }
 }

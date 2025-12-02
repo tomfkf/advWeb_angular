@@ -75,5 +75,11 @@
     "EDIT": "Edit",
     "DELETE": "Delete",
     "CREATE": "Create"
+  },
+  "FORM": {
+    "STEPS": {
+      "BASIC_INFO": "Basic Information",
+      "LOCATION": "Location Details"
+    }
   }
 }
