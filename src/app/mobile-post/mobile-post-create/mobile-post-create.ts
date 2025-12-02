@@ -50,6 +50,8 @@ export class MobilePostCreate implements AfterViewInit {
   map!: L.Map;
   L!: any;
   inputPost?: MobilePost;
+  displayMapFlag: boolean = false;
+  selectedMarker?: any;
 
   key = {
     "basicInfo": [
@@ -225,6 +227,21 @@ export class MobilePostCreate implements AfterViewInit {
       this.map = this.L.map('map').setView([22.3193, 114.1694], 13);
     }
 
+    this.map.on('click', (e) => {
+      if(confirm('Set location here?') ){
+        if (this.selectedMarker) {
+          this.map.removeLayer(this.selectedMarker);
+        }
+        this.selectedMarker = this.L.marker(e.latlng).addTo(this.map);
+        this.selectedMarker.bindPopup('Selected Location').openPopup();
+        this.locationForm.patchValue({
+          latitude: e.latlng.lat,
+          longitude: e.latlng.lng
+        });
+      }
+      
+    });
+
     this.L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
     }).addTo(this.map);
@@ -232,10 +249,9 @@ export class MobilePostCreate implements AfterViewInit {
     if (this.initMobilePostOption) {
       this.initMobilePostOption.forEach((post) => {
         const marker = this.L.marker([post.latitude, post.longitude]).addTo(this.map);
-        if(this.inputPost && post.id === this.inputPost.id){
+        if (this.inputPost && post.id === this.inputPost.id) {
           marker.bindPopup(`<b>Current<br/> ${post.nameEN} ${post.openHour} - ${post.closeHour}</b><br/>${post.addressEN}`).openPopup();
-        }else 
-        {
+        } else {
           marker.bindPopup(`<b>${post.nameEN} ${post.openHour} - ${post.closeHour}</b><br/>${post.addressEN}`);
 
         }
@@ -312,5 +328,7 @@ export class MobilePostCreate implements AfterViewInit {
   }
 
   close() { }
-
+  toggleMap() {
+    this.displayMapFlag = !this.displayMapFlag;
+  }
 }
