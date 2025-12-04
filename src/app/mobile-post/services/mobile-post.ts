@@ -51,6 +51,52 @@ export class MobilePostService {
     });
   }
 
+
+  getLocationByLatLng(lat: number, lng: number) : Observable<any> { 
+    let result:MobilePost = new MobilePost();
+
+    const en = this.getLocationByLatLngWithLanguage(lat, lng,'en').subscribe(res => {
+      if(res && res.address) {
+        result.addressEN = res.address.road || '';
+        result.districtEN = res.address.city || '';
+        result.locationEN = res.address.suburb || '';
+      }
+    });
+    const tc = this.getLocationByLatLngWithLanguage(lat, lng,'zh-HK').subscribe(res => {
+      if(res && res.address) {
+        result.addressTC = res.address.road || '';
+        result.districtTC = res.address.city || '';
+        result.locationTC = res.address.suburb || '';
+      }
+    });
+    const sc = this.getLocationByLatLngWithLanguage(lat, lng,'zh-CN').subscribe(res => {
+      if(res && res.address) {
+        result.addressSC = res.address.road || '';
+        result.districtSC = res.address.city || '';
+        result.locationSC = res.address.suburb || '';
+      }
+    });
+    
+    
+    return new Observable<any>(observer => {
+      Promise.all([en, tc, sc]).then(() => {
+        observer.next(result);
+        observer.complete();
+      });
+    });
+  }
+
+  getLocationByLatLngWithLanguage(lat: number, lng: number,language : string): Observable<any> {
+    const url = `https://nominatim.openstreetmap.org/reverse`;
+    const params = new HttpParams()
+      .set('lat', `${lat}`)
+      .set('lon', `${lng}`)
+      .set('accept-language', language)
+      .set('format', 'json');
+
+    return this.http.get<any>(url, { params });
+  }
+
   private cleanUp(object: any): any {
     const cleanedObject: any = {};
     for (const key in object) {

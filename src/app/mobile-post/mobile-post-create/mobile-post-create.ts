@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, Inject, Input, OnInit } from '@angular/core';
+import { AfterViewInit, Component, Inject, Input, OnInit, ViewChild } from '@angular/core';
 import { FormControl, FormsModule, ReactiveFormsModule, ValidatorFn } from '@angular/forms';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { AsyncPipe, CommonModule } from '@angular/common';
@@ -16,7 +16,8 @@ import { MobilePostResult } from '../mobile-post-result/mobile-post-result';
 import { MobilePostAction } from '../models/mobile-post-action-enum';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
-import { MatStepperModule } from '@angular/material/stepper';
+import { MatStepper, MatStepperModule } from '@angular/material/stepper';
+import * as chineseConv from 'chinese-conv';
 
 @Component({
   selector: 'app-mobile-post-create',
@@ -145,7 +146,7 @@ export class MobilePostCreate implements AfterViewInit {
   }
   basicFormKey = this.key.basicInfo.map(f => f.field);
   locationFormKey = this.key.location.map(f => f.field);
-
+  @ViewChild('stepper') stepper!: MatStepper;
 
   constructor(
     private fb: FormBuilder,
@@ -188,18 +189,7 @@ export class MobilePostCreate implements AfterViewInit {
     if (data.id) {
       service.getRecordById(Number(data.id)).subscribe((data: MobilePostQueryResult) => {
         this.inputPost = data.items ? data.items[0] : undefined;
-        if (this.inputPost) {
-          for (const basicFormField of this.key.basicInfo) {
-            this.basicInfoForm.patchValue({
-              [basicFormField.field]: this.inputPost[basicFormField.field as keyof MobilePost]
-            });
-          }
-          for (const locationFormField of this.key.location) {
-            this.locationForm.patchValue({
-              [locationFormField.field]: this.inputPost[locationFormField.field as keyof MobilePost]
-            });
-          }
-        }
+        this.setUpWithInputPost();
       });
     }
 
@@ -228,7 +218,7 @@ export class MobilePostCreate implements AfterViewInit {
     }
 
     this.map.on('click', (e) => {
-      if(confirm('Set location here?') ){
+      if (confirm('Set location here?')) {
         if (this.selectedMarker) {
           this.map.removeLayer(this.selectedMarker);
         }
@@ -238,8 +228,35 @@ export class MobilePostCreate implements AfterViewInit {
           latitude: e.latlng.lat,
           longitude: e.latlng.lng
         });
+
+        this.service.getLocationByLatLngWithLanguage(e.latlng.lat, e.latlng.lng, 'zh-HK').subscribe((result) => {
+          if (result && result.address) {
+            console.log('TC Result:', result);
+            this.locationForm.patchValue({
+              addressTC: result.address.road || '',
+              districtTC: result.address.city || '',
+              locationTC: result.address.suburb || '',
+              addressSC: chineseConv.tify(result.address.road || '') || '',
+              districtSC: chineseConv.tify(result.address.city || '') || '',
+              locationSC: chineseConv.tify(result.address.suburb || '') || '',
+            });
+          }
+        });
+        this.service.getLocationByLatLngWithLanguage(e.latlng.lat, e.latlng.lng, 'en').subscribe((result) => {
+          if (result && result.address) {
+            console.log('EN Result:', result);
+            this.locationForm.patchValue({
+              addressEN: result.address.road || '',
+              districtEN: result.address.city || '',
+              locationEN: result.address.suburb || '',
+            });
+          }
+        });
+
+
+
       }
-      
+
     });
 
     this.L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -330,5 +347,25 @@ export class MobilePostCreate implements AfterViewInit {
   close() { }
   toggleMap() {
     this.displayMapFlag = !this.displayMapFlag;
+  }
+
+  reset() {
+    this.stepper.reset();
+    this.setUpWithInputPost();
+  }
+
+  setUpWithInputPost() {
+    if (this.inputPost) {
+      for (const basicFormField of this.key.basicInfo) {
+        this.basicInfoForm.patchValue({
+          [basicFormField.field]: this.inputPost[basicFormField.field as keyof MobilePost]
+        });
+      }
+      for (const locationFormField of this.key.location) {
+        this.locationForm.patchValue({
+          [locationFormField.field]: this.inputPost[locationFormField.field as keyof MobilePost]
+        });
+      }
+    }
   }
 }
