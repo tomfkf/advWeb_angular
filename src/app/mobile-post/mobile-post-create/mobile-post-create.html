@@ -65,6 +65,7 @@
                         <mat-option [value]="option">{{option}}</mat-option>
                         }
                     </mat-autocomplete>
+                    {{locationForm.get(key)?.errors| json}}
 
 
                 </div>
@@ -80,10 +81,20 @@
         </mat-step>
         <mat-step>
             <ng-template matStepLabel>Done</ng-template>
-            <p>You are now done.</p>
+            <p>Your changes list : </p>
+            <form class="ui form form">
+            @for (key of getChangedKeys(); track key) {
+               <div class="inline field">
+                
+                    <label>{{ 'MOBILE_POST.FIELDS.' + key | translate}}</label>
+                    <!-- <input type="text" formControlName="{{key}}" readonly [value]="getFormValueByKey(key)"> -->
+                </div>
+            }
+            </form>
             <div>
-                <button matButton matStepperPrevious>Back</button>
-                <button matButton (click)="reset()">Reset</button>
+                <button class="ui button back-button"  matButton matStepperPrevious>Back</button>
+                <button class="ui button reset-button" matButton (click)="reset()">Reset</button>
+                <button class="ui button submit-button" matButton (click)="onSubmit()">Submit</button>
             </div>
         </mat-step>
     </mat-stepper>

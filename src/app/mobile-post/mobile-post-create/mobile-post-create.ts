@@ -18,6 +18,7 @@ import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatStepper, MatStepperModule } from '@angular/material/stepper';
 import * as chineseConv from 'chinese-conv';
+import { MatChipRemove } from "@angular/material/chips";
 
 @Component({
   selector: 'app-mobile-post-create',
@@ -31,8 +32,9 @@ import * as chineseConv from 'chinese-conv';
     ReactiveFormsModule,
     AsyncPipe,
     TranslatePipe,
-    MatIconModule, MatStepperModule
-  ],
+    MatIconModule, MatStepperModule,
+    MatChipRemove
+],
   templateUrl: './mobile-post-create.html',
   styleUrl: './mobile-post-create.css',
 })
@@ -236,9 +238,9 @@ export class MobilePostCreate implements AfterViewInit {
               addressTC: result.address.road || '',
               districtTC: result.address.city || '',
               locationTC: result.address.suburb || '',
-              addressSC: chineseConv.tify(result.address.road || '') || '',
-              districtSC: chineseConv.tify(result.address.city || '') || '',
-              locationSC: chineseConv.tify(result.address.suburb || '') || '',
+              addressSC: chineseConv.sify(result.address.road || '') || '',
+              districtSC: chineseConv.sify(result.address.city || '') || '',
+              locationSC: chineseConv.sify(result.address.suburb || '') || '',
             });
           }
         });
@@ -367,5 +369,30 @@ export class MobilePostCreate implements AfterViewInit {
         });
       }
     }
+  }
+
+  getChangedKeys(): string[] {
+    let result:string[] = [];
+
+    
+    if (this.inputPost) {
+      for (const key of [...this.basicFormKey, ...this.locationFormKey]) {
+        const value = this.getFormValueByKey(key);
+        const initValue = this.inputPost[key as keyof MobilePost];
+        if (value !== initValue) {
+          result.push(key); 
+        }
+      }
+    }else {
+      result = [...this.basicFormKey, ...this.locationFormKey];
+    }
+
+    return result;
+  }
+
+  getFormValueByKey(key: string): any { 
+    console.log('Getting value for key:', key);
+    return '';
+    // return this.basicInfoForm.get(key)?.value || this.locationForm.get(key)?.value;
   }
 }

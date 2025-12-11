@@ -98,6 +98,10 @@ export class
       if (column.endsWith(lang)) {
         return true;
       }
+      if(column === 'seq' || column === 'latitude' || column === 'longitude') {
+        return false;
+      }
+      
       let hasLang = false;
       this.langs.forEach(l => {
         if (column.endsWith(l)) {
@@ -106,6 +110,7 @@ export class
       });
       return !hasLang;
     });
+    
     return [...displayedColumns, 'action'];
   }
 
