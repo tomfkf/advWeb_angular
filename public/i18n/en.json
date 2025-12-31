@@ -58,14 +58,8 @@
       "keyword": "Keyword",
       "CLEAR_ALL": "Clear All"
     },
-    "ERROR": {
-      "REQUIRED": "This field is required",
-      "MAX_LENGTH": "Maximum length is {{max}} characters",
-      "MIN": "Minimum value is {{min}}",
-      "MAX": "Maximum value is {{max}}",
-      "PATTERN": "Invalid format"
-    },
     "TITLE": {
+      "HEADING": "Mobile Post Management",
       "EDIT": "Edit Mobile Post",
       "CREATE": "Create Mobile Post",
       "DELETE": "Delete Mobile Post"
@@ -80,6 +74,13 @@
     "STEPS": {
       "BASIC_INFO": "Basic Information",
       "LOCATION": "Location Details"
+    },
+    "ERROR": {
+      "REQUIRED": "This field is required",
+      "MAXLENGTH": "Maximum length is {{max}} characters",
+      "MIN": "Minimum value is {{min}}",
+      "MAX": "Maximum value is {{max}}",
+      "PATTERN": "Invalid format"
     }
   }
 }

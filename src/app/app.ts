@@ -29,6 +29,7 @@ export class App {
   initMobilePostOption: MobilePost[];
   actionModalDialogRef: MatDialogRef<MobilePostCreate, any> | undefined;
   dialogConfig = new MatDialogConfig();
+  refreshTrigger: number = 0;
 
   constructor(service: MobilePostService, private matDialog: MatDialog) {
     this.translate.addLangs(['en']);
@@ -56,5 +57,11 @@ export class App {
     this.dialogConfig.width = "50vw";
     this.dialogConfig.maxWidth = '50vw';
     this.actionModalDialogRef = this.matDialog.open(MobilePostCreate, this.dialogConfig);
+    this.actionModalDialogRef.afterClosed().subscribe(result => {
+      console.log('The dialog was closed',result);
+      if (result?.refresh) {
+        this.refreshTrigger++;
+      } 
+    });
   }
 }

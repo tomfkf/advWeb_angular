@@ -3,12 +3,15 @@
     <div class="ui header">{{ 'MOBILE_POST.TITLE.'+actionString| translate }}</div>
     <mat-stepper linear #stepper>
         <mat-step [stepControl]="basicInfoForm" isOptional="true">
-            <form [formGroup]="basicInfoForm" class="ui form form">
+            <form [formGroup]="basicInfoForm" class="ui fluid form">
                 <ng-template matStepLabel>{{ 'FORM.STEPS.BASIC_INFO' | translate }}</ng-template>
 
                 @for(key of this.key.basicInfo; track key) {
                 @if(!hiddenField.includes(key.field)) {
-                <div class="inline field">
+                <div class="inline field ui form" [ngClass]="{
+                        error: basicInfoForm.get(key.field)?.invalid &&
+                            (basicInfoForm.get(key.field)?.touched || forceShowErrorStep1)
+                    }">
                     <label>{{ 'MOBILE_POST.FIELDS.' + key.field| translate}}</label>
 
                     @switch (key.type) {
@@ -31,7 +34,29 @@
                     @default {}
 
                     }
-                    {{basicInfoForm.get(key.field)?.errors| json}}
+
+
+                    @if(basicInfoForm.get(key.field)?.invalid &&
+                    (basicInfoForm.get(key.field)?.touched || forceShowErrorStep1)) {
+                    <div class="ui left  pointing red basic label">
+                        @if(basicInfoForm.get(key.field)?.errors?.['required']) {
+                        <p>{{ 'FORM.ERROR.REQUIRED' | translate }}</p>
+                        }
+                        @if(basicInfoForm.get(key.field)?.errors?.['maxlength']) {
+                        <p>{{ 'FORM.ERROR.MAXLENGTH' | translate:{requiredLength:
+                            basicInfoForm.get(key.field)?.errors?.['maxlength']?.requiredLength , actualLength:
+                            basicInfoForm.get(key.field)?.errors?.['maxlength']?.actualLength } }}</p>
+                        }
+                        @if(basicInfoForm.get(key.field)?.errors?.['min']) {
+                        <p>{{ 'FORM.ERROR.MIN' | translate:{min: basicInfoForm.get(key.field)?.errors?.['min']?.min ,
+                            actual: basicInfoForm.get(key.field)?.errors?.['min']?.actual } }}</p>
+                        }
+                        @if(basicInfoForm.get(key.field)?.errors?.['max']) {
+                        <p>{{ 'FORM.ERROR.MAX' | translate:{max: basicInfoForm.get(key.field)?.errors?.['max']?.max ,
+                            actual: basicInfoForm.get(key.field)?.errors?.['max']?.actual } }}</p>
+                        }
+                    </div>
+                    }
 
                 </div>
                 }
@@ -40,20 +65,23 @@
 
             </form>
             <div>
-                <button class="ui button submit-button" matButton matStepperNext>Next</button>
+                <button class="ui button submit-button" matButton matStepperNext
+                    (click)="forceShowErrorStep1 = true">Next</button>
             </div>
         </mat-step>
         <mat-step [stepControl]="locationForm">
             <form [formGroup]="locationForm" class="ui form form">
                 <ng-template matStepLabel>{{ 'FORM.STEPS.LOCATION' | translate }}</ng-template>
+                <div id="map"> </div>
 
                 @for(key of locationFormKey; track key) {
 
                 @if(!hiddenField.includes(key)) {
-                <div class="inline field">
-                    @if($index == 0) {
-                    <div id="map"> </div>
-                    }
+                <div class="inline field ui form" [ngClass]="{
+                        error: locationForm.get(key)?.invalid &&
+                        (locationForm.get(key)?.touched || forceShowErrorStep2)
+                    }">
+
                     <label>{{ 'MOBILE_POST.FIELDS.' + key | translate}}</label>
 
 
@@ -65,9 +93,29 @@
                         <mat-option [value]="option">{{option}}</mat-option>
                         }
                     </mat-autocomplete>
+
+                    @if(locationForm.get(key)?.invalid &&
+                    (locationForm.get(key)?.touched || forceShowErrorStep2)) {
+                    <div class="ui left  pointing red basic label">
+                        @if(locationForm.get(key)?.errors?.['required']) {
+                        <p>{{ 'FORM.ERROR.REQUIRED' | translate }}</p>
+                        }
+                        @if(locationForm.get(key)?.errors?.['maxlength']) {
+                        <p>{{ 'FORM.ERROR.MAXLENGTH' | translate:{requiredLength:
+                            locationForm.get(key)?.errors?.['maxlength']?.requiredLength , actualLength:
+                            locationForm.get(key)?.errors?.['maxlength']?.actualLength } }}</p>
+                        }
+                        @if(locationForm.get(key)?.errors?.['min']) {
+                        <p>{{ 'FORM.ERROR.MIN' | translate:{min: locationForm.get(key)?.errors?.['min']?.min , actual:
+                            locationForm.get(key)?.errors?.['min']?.actual } }}</p>
+                        }
+                        @if(locationForm.get(key)?.errors?.['max']) {
+                        <p>{{ 'FORM.ERROR.MAX' | translate:{max: locationForm.get(key)?.errors?.['max']?.max , actual:
+                            locationForm.get(key)?.errors?.['max']?.actual } }}</p>
+                        }
+                    </div>
                     {{locationForm.get(key)?.errors| json}}
-
-
+                    }
                 </div>
                 }
 
@@ -76,25 +124,47 @@
             <div>
                 <button class="ui button back-button" matButton matStepperPrevious>Back</button>
 
-                <button class="ui button submit-button" matButton matStepperNext>Next</button>
+                <button class="ui button submit-button" matButton matStepperNext
+                    (click)="forceShowErrorStep2 = true">Next</button>
             </div>
         </mat-step>
         <mat-step>
-            <ng-template matStepLabel>Done</ng-template>
-            <p>Your changes list : </p>
+            @let changeKey = getChangedKeys();
+
+            <ng-template matStepLabel>
+
+                Comfirmation Page
+
+            </ng-template>
+            @if(actionString == 'DELETE'){
+                <p>Are you sure to delete this record?</p>
+            } @else{
+            @if(changeKey.length == 0){
+                <p>No Changes & please go back to edit.</p>
+            } @else {
+                <p>Confirmation list : </p>
+            }
+            }
+
             <form class="ui form form">
-            @for (key of getChangedKeys(); track key) {
-               <div class="inline field">
-                
+                @for (key of changeKey; track key) {
+                <div class="inline field">
+
                     <label>{{ 'MOBILE_POST.FIELDS.' + key | translate}}</label>
                     <!-- <input type="text" formControlName="{{key}}" readonly [value]="getFormValueByKey(key)"> -->
+                    <input type="text" readonly [value]="getFormValueByKey(key)">
                 </div>
-            }
+                }
             </form>
             <div>
-                <button class="ui button back-button"  matButton matStepperPrevious>Back</button>
+                <button class="ui button back-button" matButton matStepperPrevious>Back</button>
+                @if(changeKey.length > 0){
                 <button class="ui button reset-button" matButton (click)="reset()">Reset</button>
+                }
+                @if(changeKey.length > 0 || actionString == "DELETE"){
                 <button class="ui button submit-button" matButton (click)="onSubmit()">Submit</button>
+
+                }
             </div>
         </mat-step>
     </mat-stepper>

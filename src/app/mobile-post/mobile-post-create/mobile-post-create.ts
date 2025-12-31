@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, Inject, Input, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, inject, Inject, Input, OnInit, ViewChild } from '@angular/core';
 import { FormControl, FormsModule, ReactiveFormsModule, ValidatorFn } from '@angular/forms';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { AsyncPipe, CommonModule } from '@angular/common';
@@ -14,11 +14,12 @@ import { MobilePostQueryResult } from '../models/mobile-post-query-result';
 import { MobilePost } from '../models/mobile-post';
 import { MobilePostResult } from '../mobile-post-result/mobile-post-result';
 import { MobilePostAction } from '../models/mobile-post-action-enum';
-import { MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatStepper, MatStepperModule } from '@angular/material/stepper';
 import * as chineseConv from 'chinese-conv';
 import { MatChipRemove } from "@angular/material/chips";
+import {MatSnackBar} from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-mobile-post-create',
@@ -29,12 +30,11 @@ import { MatChipRemove } from "@angular/material/chips";
     MatFormFieldModule,
     MatInputModule,
     MatAutocompleteModule,
-    ReactiveFormsModule,
     AsyncPipe,
     TranslatePipe,
     MatIconModule, MatStepperModule,
     MatChipRemove
-],
+  ],
   templateUrl: './mobile-post-create.html',
   styleUrl: './mobile-post-create.css',
 })
@@ -55,6 +55,9 @@ export class MobilePostCreate implements AfterViewInit {
   inputPost?: MobilePost;
   displayMapFlag: boolean = false;
   selectedMarker?: any;
+  forceShowErrorStep1 = false;
+  forceShowErrorStep2 = false;
+  private _snackBar = inject(MatSnackBar);
 
   key = {
     "basicInfo": [
@@ -153,6 +156,7 @@ export class MobilePostCreate implements AfterViewInit {
   constructor(
     private fb: FormBuilder,
     private service: MobilePostService,
+    private  dialogRef: MatDialogRef<typeof MobilePostCreate>,
     @Inject(MAT_DIALOG_DATA) data: { action: MobilePostAction; id?: string }
   ) {
 
@@ -227,8 +231,8 @@ export class MobilePostCreate implements AfterViewInit {
         this.selectedMarker = this.L.marker(e.latlng).addTo(this.map);
         this.selectedMarker.bindPopup('Selected Location').openPopup();
         this.locationForm.patchValue({
-          latitude: e.latlng.lat,
-          longitude: e.latlng.lng
+          latitude: Number(e.latlng.lat.toFixed(5)),
+          longitude: Number(e.latlng.lng.toFixed(5))
         });
 
         this.service.getLocationByLatLngWithLanguage(e.latlng.lat, e.latlng.lng, 'zh-HK').subscribe((result) => {
@@ -323,25 +327,37 @@ export class MobilePostCreate implements AfterViewInit {
 
   onSubmit() {
 
-    const formData = {
-      ...this.basicInfoForm.value,
-      ...this.locationForm.value
-    }
+
 
     switch (this.action) {
       case MobilePostAction.create:
-        if (this.basicInfoForm.valid && this.locationForm.valid) {
-          console.log('Creating Mobile Post:', formData);
+        const creationFormData = {
+          ...this.basicInfoForm.value,
+          ...this.locationForm.value
         }
-        this.service.createRecord(formData as MobilePost);
+        if (this.basicInfoForm.valid && this.locationForm.valid) {
+          console.log('Creating Mobile Post:', creationFormData);
+        }
+        this.service.createRecord(creationFormData as MobilePost);
+        this._snackBar.open('Mobile Post Created Successfully', 'Close', { duration: 3000 });
+        this.dialogRef.close({refresh: true});
         break;
       case MobilePostAction.edit:
         if (this.basicInfoForm.valid && this.locationForm.valid) {
-          this.service.updateRecord(formData as MobilePost, this.id);
+          const changedKey = this.getChangedKeys();
+          let request:MobilePost = {};
+          for (const key of changedKey) {
+            request[key as keyof MobilePost] = this.getFormValueByKey(key);
+          }
+          this.service.updateRecord(request as MobilePost, this.id);
+          this._snackBar.open('Mobile Post Updated Successfully', 'Close', { duration: 3000 });
+          this.dialogRef.close({refresh: true}); 
         }
         break;
       case MobilePostAction.delete:
+        this.dialogRef.close({refresh: true});
         this.service.deleteRecordById(this.id);
+        this._snackBar.open('Mobile Post Deleted Successfully', 'Close', { duration: 3000 });
         break;
     }
   }
@@ -372,27 +388,25 @@ export class MobilePostCreate implements AfterViewInit {
   }
 
   getChangedKeys(): string[] {
-    let result:string[] = [];
+    let result: string[] = [];
 
-    
+
     if (this.inputPost) {
       for (const key of [...this.basicFormKey, ...this.locationFormKey]) {
         const value = this.getFormValueByKey(key);
         const initValue = this.inputPost[key as keyof MobilePost];
         if (value !== initValue) {
-          result.push(key); 
+          result.push(key);
         }
       }
-    }else {
+    } else {
       result = [...this.basicFormKey, ...this.locationFormKey];
     }
 
-    return result;
+    return result
   }
 
-  getFormValueByKey(key: string): any { 
-    console.log('Getting value for key:', key);
-    return '';
-    // return this.basicInfoForm.get(key)?.value || this.locationForm.get(key)?.value;
+  getFormValueByKey(key: string): any {
+    return this.basicInfoForm.get(key)?.value || this.locationForm.get(key)?.value;
   }
 }

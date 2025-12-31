@@ -51,6 +51,7 @@ export class
   @ViewChild(MatSort) sort!: MatSort;
 
   @Input() queryFilter!: MobilePostQueryRequest | null;
+  @Input() refreshTrigger!: number;
 
   lang: string = 'EN';
 
@@ -76,14 +77,20 @@ export class
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes['queryFilter'] && this.queryFilter) {
-      this.dataSource.setQueryFilter(this.queryFilter);
+
+      if (changes['queryFilter']) {
+        this.dataSource.setQueryFilter(this.queryFilter);
+        this.dataSource.updateDataFromServer();
+      }
+
+    if (changes['refreshTrigger']) {
+      console.log('Refresh Triggered');
       this.dataSource.updateDataFromServer();
     }
+
   }
 
   ngOnInit(): void {
-    // throw new Error('Method not implemented.');
   }
 
   openCreateModal() {
@@ -98,10 +105,10 @@ export class
       if (column.endsWith(lang)) {
         return true;
       }
-      if(column === 'seq' || column === 'latitude' || column === 'longitude') {
+      if (column === 'seq' || column === 'latitude' || column === 'longitude') {
         return false;
       }
-      
+
       let hasLang = false;
       this.langs.forEach(l => {
         if (column.endsWith(l)) {
@@ -110,7 +117,7 @@ export class
       });
       return !hasLang;
     });
-    
+
     return [...displayedColumns, 'action'];
   }
 
